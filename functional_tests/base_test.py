@@ -19,6 +19,7 @@ class NewVisitorTest(unittest.TestCase):
         # Upon getting to the site, Selenie could see some a list of product category
         # that she could click on
 
+        self.fail("Finish the functional test")
         # She clicks on "Food"
 
         # The webpage loads a new page which show a list of food she could choose from
