@@ -12,3 +12,5 @@ geckodriver.log
 __pycache__
 *.pyc
 
+# vim files
+work.vim
