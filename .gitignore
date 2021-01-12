@@ -8,3 +8,7 @@ manage.py
 # function test log
 geckodriver.log
 
+# python files
+__pycache__
+*.pyc
+
