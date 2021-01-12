@@ -1,0 +1,10 @@
+venv
+activate.bat
+
+# django file
+*.sqlite3
+manage.py
+
+# function test log
+geckodriver.log
+
