@@ -2,9 +2,9 @@
     <title>eCom-Store</title>
     <body>
         <ul id="product_category">
-            <li>Food</li>
-            <li>Household</li>
-            <li>Computer</li>
+            {% for category in categories %}
+            <li> {{ category }}</li>
+            {% endfor %}
         </ul>
     </body>
 </html>
