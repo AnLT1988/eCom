@@ -20,9 +20,14 @@ class NewVisitorTest(unittest.TestCase):
         # that she could click on
         categories = self.browser.find_element_by_id("product_category")
         items = categories.find_elements_by_tag_name("li")
-        self.assertIn("food", [item.text.lower() for item in items])
-        self.assertIn("household", [item.text.lower() for item in items])
-        self.assertIn("computer", [item.text.lower() for item in items])
+        categories = [item.text.lower() for item in items]
+        self.assertIn("food", categories)
+        self.assertIn("household", categories)
+        self.assertIn("computer", categories)
+
+        found = self.browser.find_element_by_link_text("Food")
+
+        self.assertTrue(found, "Cannot find the link")
 
         self.fail("Finish the functional test")
         # She clicks on "Food"

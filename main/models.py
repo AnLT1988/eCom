@@ -7,3 +7,6 @@ class Category(models.Model):
     @classmethod
     def get_category(cls):
         return cls.objects.all()
+
+    def get_link(self):
+        return f"/{self.name}"

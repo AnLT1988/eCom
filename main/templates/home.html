@@ -3,7 +3,7 @@
     <body>
         <ul id="product_category">
             {% for category in categories %}
-            <li> {{ category.name }}</li>
+            <li><a href={{ category.get_link }}>{{ category.name }}</li>
             {% endfor %}
         </ul>
     </body>
