@@ -18,6 +18,11 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn("eCom-Store", self.browser.title)
         # Upon getting to the site, Selenie could see some a list of product category
         # that she could click on
+        categories = self.browser.find_element_by_id("product_category")
+        items = categories.find_elements_by_tag_name("li")
+        self.assertIn("food", [item.text.lower() for item in items])
+        self.assertIn("household", [item.text.lower() for item in items])
+        self.assertIn("computer", [item.text.lower() for item in items])
 
         self.fail("Finish the functional test")
         # She clicks on "Food"

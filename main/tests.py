@@ -16,3 +16,12 @@ class SmokeTest(TestCase):
         content = response.content.decode("utf-8")
         self.assertTrue(content.startswith("<html>"))
         self.assertIn("<title>eCom-Store</title>", content)
+
+    def test_home_page_show_list_of_category(self):
+        request = HttpRequest()
+        response = home_page(request)
+        content = response.content.decode("utf-8")
+        self.assertIn('id="product_category"', content)
+        self.assertIn('<li>Food</li>', content)
+        self.assertIn('<li>Household</li>', content)
+        self.assertIn('<li>Computer</li>', content)
