@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+class Category(models.Model):
 
-def get_category():
-    return ['Food']
+    @staticmethod
+    def get_category():
+        return ['Food', 'Household', 'Computer']

@@ -1,9 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from main.models import get_category
+from main.models import Category
+from django.db import models
 
 # Create your views here.
 
 def home_page(request):
-    categories = get_category()
+    categories = Category.get_category()
     return render(request, "home.html", {'categories': categories})
+
+
+class MyModel(models.Model):
+    pass
