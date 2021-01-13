@@ -8,7 +8,3 @@ from django.db import models
 def home_page(request):
     categories = Category.get_category()
     return render(request, "home.html", {'categories': categories})
-
-
-class MyModel(models.Model):
-    pass
