@@ -27,10 +27,14 @@ class NewVisitorTest(unittest.TestCase):
             found = self.browser.find_element_by_link_text(expected)
             self.assertTrue(found, "Cannot find the link to {}".format(expected))
 
-        self.fail("Finish the functional test")
         # She clicks on "Food"
+        self.browser.find_element_by_link_text("Food")
+        self.browser.implicitly_wait(1)
 
         # The webpage loads a new page which show a list of food she could choose from
+        items = self.browser.find_elements_by_id("item_container")
+
+        self.assertGreaterEqual(len(items), 1)
         # Each food shows an image
 
         # name of the food
@@ -73,6 +77,7 @@ class NewVisitorTest(unittest.TestCase):
         # content, she pressed "Purchase"
 
         # A congratulation message was showed and her Order Id was printed on the screen
+        self.fail("Finish the functional test")
 
 
 if __name__ == "__main__":
