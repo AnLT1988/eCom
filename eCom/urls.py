@@ -20,4 +20,5 @@ from main import views as main_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main_view.home_page, name='home_page'),
+    path('<str:category>/', main_view.display_category, name='category_page'),
 ]

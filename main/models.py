@@ -9,4 +9,4 @@ class Category(models.Model):
         return cls.objects.all()
 
     def get_link(self):
-        return f"/{self.name}"
+        return f"/{self.name}/"

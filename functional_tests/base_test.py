@@ -13,6 +13,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_shoper_can_place_an_order(self):
         # Selenie knows about out new eCommerce site
         # so she visits the site
+        self.browser.implicitly_wait(1)
         self.browser.get("http://localhost:8000")
 
         self.assertIn("eCom-Store", self.browser.title)
@@ -28,22 +29,29 @@ class NewVisitorTest(unittest.TestCase):
             self.assertTrue(found, "Cannot find the link to {}".format(expected))
 
         # She clicks on "Food"
-        self.browser.find_element_by_link_text("Food")
-        self.browser.implicitly_wait(1)
+        self.browser.find_element_by_link_text("Food").click()
+
+        url = self.browser.current_url
+        self.assertRegex(url, '/Food/')
 
         # The webpage loads a new page which show a list of food she could choose from
         items = self.browser.find_elements_by_id("item_container")
 
-        self.assertGreaterEqual(len(items), 1)
-        # Each food shows an image
+        self.assertGreaterEqual(len(items), 2)
+        for item in items:
+            # Each food shows a clickable image
+            self.assertTrue(item.find_elements_by_xpath("a[@href]/img"))
 
-        # name of the food
+            # name of the food
 
-        # and its price
+            # and its price
 
         # Selenie click on a food
+        self.browser.find_element_by_xpath("//*/a[@href]/img").click()
 
         # She was brought to the page where all details of the food could be found
+        url = self.browser.current_url
+        self.assertRegex(url, "/Food/(\d*)/")
 
         # Selenie also sees a button to buy the food with the text "Buy now"
 
