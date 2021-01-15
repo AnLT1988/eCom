@@ -1,8 +1,9 @@
 from django.urls import resolve
 from django.http import HttpRequest
 from django.test import TestCase
+from django.db.utils import IntegrityError
 from main.views import home_page
-from main.models import Category
+from main.models import Category, Product
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -29,3 +30,34 @@ class CategoryModelTest(TestCase):
                 pass
         except:
             self.fail('Response should be iterable')
+
+    def test_can_create_new_category(self):
+        category = Category()
+        category.name = 'New category'
+        category.save()
+
+        self.assertIn(category, Category.objects.all())
+
+
+class ProductModelTest(TestCase):
+
+    fixtures = ['category_data.json']
+
+    def test_can_create_new_product(self):
+        category = Category.objects.first()
+        product = Product(category=category, SKU=123)
+        product.save()
+
+        self.assertIn(product, Product.objects.all())
+
+    def test_product_require_category(self):
+        product = Product()
+        product.SKU = '123'
+        self.assertRaises(IntegrityError, product.save)
+
+    def test_product_require_sku(self):
+        product = Product()
+        category = Category.objects.first()
+        product.category = category
+
+        self.assertRaises(IntegrityError, product.save)

@@ -10,3 +10,8 @@ class Category(models.Model):
 
     def get_link(self):
         return f"/{self.name}/"
+
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default='')
+    SKU = models.TextField(unique=True, blank=False, max_length=8, default=None)
