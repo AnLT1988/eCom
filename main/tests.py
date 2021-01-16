@@ -46,12 +46,12 @@ class ProductListViewTest(TestCase):
     def test_product_detail_view_template_display_sufficient_detail(self):
         response = self.client.get("/Food/1234/")
 
-        products = Product.objects.all()
+        product = Product.objects.get(SKU="1234")
 
-        self.assertGreater(len(products), 0, "There is no product to test, setup some")
+        self.assertContains(response, product.description)
 
-        for product in products:
-            self.assertContains(response, product.description)
+        another_product = Product.objects.get(SKU="1235")
+        self.assertNotContains(response, another_product.description)
 
 
 class CategoryModelTest(TestCase):

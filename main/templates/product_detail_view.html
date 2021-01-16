@@ -2,14 +2,12 @@
     <title>eCom-Store</title>
     <body>
         <ul id="item_container">
-            {% for product in products %}
             <div>
                 <img id="product_img"/>
                 <div id="product_description">
                     {{ product.description }}
                 </div>
             </div>
-            {% endfor %}
         </ul>
     </body>
 </html>

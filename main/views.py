@@ -16,5 +16,5 @@ def display_category(request, category):
     return render(request, "category_view.html", {"products": products})
 
 def display_product_detail(request, category, sku):
-    products = Product.objects.all()
-    return render(request, "product_detail_view.html", {"products": products})
+    product = Product.objects.get(SKU=sku)
+    return render(request, "product_detail_view.html", {"product": product})
