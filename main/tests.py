@@ -20,6 +20,24 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, "category_view.html")
 
 
+class ProductListViewTest(TestCase):
+
+    def test_product_detail_view_use_correct_template(self):
+        response = self.client.get("/Food/1234/")
+
+        self.assertTemplateUsed(response, "product_detail_view.html")
+
+    def test_product_detail_view_template_display_sufficient_detail(self):
+        response = self.client.get("/Food/1234/")
+
+        products = Product.objects.all()
+
+        self.assertGreater(len(products), 0, "There is no product to test, setup some")
+
+        for product in products:
+            self.assertContains(response, product.discription)
+
+
 class CategoryModelTest(TestCase):
 
     def test_model_return_category(self):

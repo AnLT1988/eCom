@@ -11,3 +11,6 @@ def home_page(request):
 
 def display_category(request, category):
     return render(request, "category_view.html")
+
+def display_product_detail(request, category, sku):
+    return render(request, "product_detail_view.html")
