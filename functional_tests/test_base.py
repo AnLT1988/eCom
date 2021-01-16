@@ -1,8 +1,11 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
+
+    fixtures = ['category_data.json']
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -14,7 +17,7 @@ class NewVisitorTest(unittest.TestCase):
         # Selenie knows about out new eCommerce site
         # so she visits the site
         self.browser.implicitly_wait(1)
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
 
         self.assertIn("eCom-Store", self.browser.title)
         # Upon getting to the site, Selenie could see some a list of product category
