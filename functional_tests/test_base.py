@@ -38,7 +38,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertRegex(url, '/Food/')
 
         # The webpage loads a new page which show a list of food she could choose from
-        items = self.browser.find_elements_by_id("item_container")
+        items = self.browser.find_elements_by_xpath('//*/div[contains(@id, "item_container")]')
 
         self.assertGreaterEqual(len(items), 2)
         for item in items:

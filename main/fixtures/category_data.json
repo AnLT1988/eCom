@@ -2,16 +2,40 @@
     {
         "model": "main.category",
         "pk": 1,
-        "fields": {"name": "Food"}
+        "fields": {
+            "name": "Food"
+        }
     },
     {
         "model": "main.category",
         "pk": 2,
-        "fields": {"name": "Household"}
+        "fields": {
+            "name": "Household"
+        }
     },
     {
         "model": "main.category",
         "pk": 3,
-        "fields": {"name": "Computer"}
+        "fields": {
+            "name": "Computer"
+        }
+    },
+    {
+        "model": "main.product",
+        "pk": 1,
+        "fields": {
+            "category": 1,
+            "SKU": "1234",
+            "description": "This is a canned food"
+        }
+    },
+    {
+        "model": "main.product",
+        "pk": 2,
+        "fields": {
+            "category": 1,
+            "SKU": "1235",
+            "description": "This is a second canned food"
+        }
     }
 ]

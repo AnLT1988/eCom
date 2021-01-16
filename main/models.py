@@ -15,3 +15,4 @@ class Category(models.Model):
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default='')
     SKU = models.TextField(unique=True, blank=False, max_length=8, default=None)
+    description = models.TextField(default='')

@@ -14,13 +14,29 @@ class HomePageTest(TestCase):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
 
+
+class CategoryViewTest(TestCase):
+
+    fixtures = ['category_data.json']
+
     def test_each_category_has_a_page(self):
         category = Category.objects.first()
         response = self.client.get(f"/{category.name}/")
         self.assertTemplateUsed(response, "category_view.html")
 
+    def test_category_view_template_display_sufficient_detail(self):
+        category = Category.objects.first()
+        products = category.product_set.all()
+
+        response = self.client.get(f"/{category.name}/")
+
+        for product in products:
+            self.assertContains(response, product.description)
+
 
 class ProductListViewTest(TestCase):
+
+    fixtures = ['category_data.json']
 
     def test_product_detail_view_use_correct_template(self):
         response = self.client.get("/Food/1234/")
@@ -35,7 +51,7 @@ class ProductListViewTest(TestCase):
         self.assertGreater(len(products), 0, "There is no product to test, setup some")
 
         for product in products:
-            self.assertContains(response, product.discription)
+            self.assertContains(response, product.description)
 
 
 class CategoryModelTest(TestCase):

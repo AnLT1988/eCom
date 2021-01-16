@@ -1,8 +1,10 @@
 <html>
     <title>eCom-Store</title>
     <body>
-        <ul id="item_container">
-            <a href='1234/'><img height=50 width=50/></a>
-        </ul>
+        {% for product in products %}
+        <div id="item_container_{{ loop.couter }}">
+            <a href='1234/'><img height=50 width=50/>{{ product.description }}</a>
+        </div>
+        {% endfor %}
     </body>
 </html>
