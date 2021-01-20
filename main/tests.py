@@ -29,6 +29,7 @@ class CategoryViewTest(TestCase):
         products = category.product_set.all()
 
         response = self.client.get(f"/{category.name}/")
+        # self.assertContains(response, "price")
 
         for product in products:
             self.assertContains(response, product.description)
@@ -50,7 +51,6 @@ class ProductListViewTest(TestCase):
 
         self.assertContains(response, product.description)
         self.assertContains(response, 'description')  # Test if there a field name description
-        self.assertContains(response, "img_src")
 
         another_product = Product.objects.get(SKU="1235")
         self.assertNotContains(response, another_product.description)
@@ -98,10 +98,21 @@ class ProductModelTest(TestCase):
 
         self.assertRaises(IntegrityError, product.save)
 
-    def test_product_has_and_image_source(self):
+    def test_product_has_an_image_source(self):
         product = Product()
         category = Category.objects.first()
         product.category = category
         product.SKU = 123
 
         self.assertRaises(IntegrityError, product.save)
+
+    def test_product_has_a_price(self):
+        product = Product()
+        category = Category.objects.first()
+        product.category = category
+        product.SKU = 123
+        product.img_src = ""
+
+        product.save()
+
+        self.assertTrue(hasattr(product, "price"))
