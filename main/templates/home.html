@@ -1,5 +1,9 @@
+{% load static %}
 <html>
-    <title>eCom-Store</title>
+    <head>
+        <title>eCom-Store</title>
+        <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+    </head>
     <body>
         <ul id="product_category">
             {% for category in categories %}
