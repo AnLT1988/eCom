@@ -49,7 +49,7 @@ class NewVisitorTest(LiveServerTestCase):
             self.assertIn("food", item.get_attribute("innerHTML"))
 
             # and its price
-            self.assertRegex(item.get_attribute("innerHTML"), r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)")
+            self.assertRegex(item.get_attribute("innerHTML"), r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}")
 
         # Selenie click on a food
         self.browser.find_element_by_xpath("//*/a[@href]//img").click()
