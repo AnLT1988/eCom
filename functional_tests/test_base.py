@@ -40,17 +40,19 @@ class NewVisitorTest(LiveServerTestCase):
         # The webpage loads a new page which show a list of food she could choose from
         items = self.browser.find_elements_by_xpath('//*/div[contains(@id, "item_container")]')
 
-        self.assertGreaterEqual(len(items), 2)
+        self.assertGreaterEqual(len(items), 2, "Failed to find [@id='item_container']. Was looking for list of product")
         for item in items:
             # Each food shows a clickable image
-            self.assertTrue(item.find_elements_by_xpath("a[@href]/img"))
+            self.assertTrue(item.find_elements_by_xpath("a[@href]//img[@src]"), "Cannot find product image")
 
             # name of the food
+            self.assertIn("food", item.get_attribute("innerHTML"))
 
             # and its price
+            self.assertRegex(item.get_attribute("innerHTML"), r"\d{1,3}([\.|,]\d{3})*[\.|,]000")
 
         # Selenie click on a food
-        self.browser.find_element_by_xpath("//*/a[@href]/img").click()
+        self.browser.find_element_by_xpath("//*/a[@href]//img").click()
 
         # She was brought to the page where all details of the food could be found
         url = self.browser.current_url

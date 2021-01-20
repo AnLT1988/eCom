@@ -16,3 +16,4 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default='')
     SKU = models.TextField(unique=True, blank=False, max_length=8, default=None)
     description = models.TextField(default='')
+    img_src = models.TextField(blank=False, default=None)

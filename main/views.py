@@ -11,6 +11,7 @@ def home_page(request):
 
 def display_category(request, category):
     category = Category.objects.get(name=category)
+    print("category:", category)
     products = category.product_set.all()
 
     return render(request, "category_view.html", {"products": products})

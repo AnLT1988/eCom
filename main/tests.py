@@ -49,6 +49,8 @@ class ProductListViewTest(TestCase):
         product = Product.objects.get(SKU="1234")
 
         self.assertContains(response, product.description)
+        self.assertContains(response, 'description')  # Test if there a field name description
+        self.assertContains(response, "img_src")
 
         another_product = Product.objects.get(SKU="1235")
         self.assertNotContains(response, another_product.description)
@@ -79,7 +81,7 @@ class ProductModelTest(TestCase):
 
     def test_can_create_new_product(self):
         category = Category.objects.first()
-        product = Product(category=category, SKU=123)
+        product = Product(category=category, SKU=123, img_src="abc")
         product.save()
 
         self.assertIn(product, Product.objects.all())
@@ -93,5 +95,13 @@ class ProductModelTest(TestCase):
         product = Product()
         category = Category.objects.first()
         product.category = category
+
+        self.assertRaises(IntegrityError, product.save)
+
+    def test_product_has_and_image_source(self):
+        product = Product()
+        category = Category.objects.first()
+        product.category = category
+        product.SKU = 123
 
         self.assertRaises(IntegrityError, product.save)

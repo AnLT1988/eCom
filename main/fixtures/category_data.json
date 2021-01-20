@@ -26,7 +26,8 @@
         "fields": {
             "category": 1,
             "SKU": "1234",
-            "description": "This is a canned food"
+            "description": "This is a canned food",
+            "img_src": "http://placekitten.com/g/200/200"
         }
     },
     {
@@ -35,7 +36,8 @@
         "fields": {
             "category": 1,
             "SKU": "1235",
-            "description": "This is a second canned food"
+            "description": "This is a second canned food",
+            "img_src": "http://placekitten.com/g/200/200"
         }
     }
 ]

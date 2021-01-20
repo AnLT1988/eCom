@@ -3,7 +3,8 @@
     <body>
         {% for product in products %}
         <div id="item_container_{{ loop.couter }}">
-            <a href='1234/'><img height=50 width=50/>{{ product.description }}</a>
+            <a href='1234/'><div><img src={{ product.img_src }}/></div>{{ product.description }}</a>
+            <p>1.000.000</p>
         </div>
         {% endfor %}
     </body>
