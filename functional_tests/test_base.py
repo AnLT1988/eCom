@@ -1,6 +1,7 @@
 from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 import unittest
 
@@ -10,7 +11,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
     fixtures = ['category_data.json']
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
+        firefox_options = Options()
+        firefox_options.add_argument("--headless")
+        self.browser = webdriver.Firefox(options=firefox_options)
         self.browser.implicitly_wait(10)
 
     def tearDown(self):
