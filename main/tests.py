@@ -35,7 +35,7 @@ class CategoryViewTest(TestCase):
             self.assertContains(response, product.description)
 
 
-class ProductListViewTest(TestCase):
+class ProductDetailViewTest(TestCase):
 
     fixtures = ['category_data.json']
 
@@ -54,6 +54,12 @@ class ProductListViewTest(TestCase):
 
         another_product = Product.objects.get(SKU="1235")
         self.assertNotContains(response, another_product.description)
+
+    def test_product_detail_view_has_an_image(self):
+        response = self.client.get("/Food/1234/")
+        product = response.context['product']
+
+        self.assertTrue(hasattr(product, "img_src"))
 
 
 class CategoryModelTest(TestCase):

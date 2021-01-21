@@ -1,14 +1,17 @@
 from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 import unittest
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
 
     fixtures = ['category_data.json']
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(10)
 
     def tearDown(self):
         self.browser.quit()
@@ -16,7 +19,6 @@ class NewVisitorTest(LiveServerTestCase):
     def test_shoper_can_place_an_order(self):
         # Selenie knows about out new eCommerce site
         # so she visits the site
-        self.browser.implicitly_wait(1)
         self.browser.get(self.live_server_url)
 
         self.assertIn("eCom-Store", self.browser.title)
@@ -57,6 +59,21 @@ class NewVisitorTest(LiveServerTestCase):
         # She was brought to the page where all details of the food could be found
         url = self.browser.current_url
         self.assertRegex(url, "/Food/(\d*)/")
+
+        item_container = self.browser.find_element_by_xpath('//*[contains(@id, "item_container")]')
+
+        # The page show an image of the product
+        try:
+            self.browser.find_element_by_xpath("//img[@src]")
+        except NoSuchElementException as e:
+            self.fail("There's no product image could be found")
+
+
+        # There's also name of the product together with description
+        self.assertIn("food", item_container.get_attribute("innerHTML"))
+
+        # and price
+        self.assertRegex(item_container.get_attribute("innerHTML"), r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}")
 
         # Selenie also sees a button to buy the food with the text "Buy now"
 
