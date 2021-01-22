@@ -1,4 +1,5 @@
 from django.db import models
+from jsonfield import JSONField
 
 # Create your models here.
 class Category(models.Model):
@@ -18,3 +19,7 @@ class Product(models.Model):
     description = models.TextField(default='')
     img_src = models.TextField(blank=False, default=None)
     price = models.BigIntegerField(default=0)
+
+
+class ShoppingCart(models.Model):
+    items = JSONField(default=list)

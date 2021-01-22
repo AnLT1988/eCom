@@ -8,13 +8,15 @@ import unittest
 
 class NewVisitorTest(StaticLiveServerTestCase):
 
+    PRICE_REGEX = r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}"
+
     fixtures = ['category_data.json']
 
     def setUp(self):
         firefox_options = Options()
         firefox_options.add_argument("--headless")
         self.browser = webdriver.Firefox(options=firefox_options)
-        self.browser.implicitly_wait(10)
+        self.browser.implicitly_wait(2)
 
     def tearDown(self):
         self.browser.quit()
@@ -54,7 +56,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
             self.assertIn("food", item.get_attribute("innerHTML"))
 
             # and its price
-            self.assertRegex(item.get_attribute("innerHTML"), r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}")
+            self.assertRegex(item.get_attribute("innerHTML"), self.PRICE_REGEX)
 
         # Selenie click on a food
         self.browser.find_element_by_xpath("//*/a[@href]//img").click()
@@ -76,9 +78,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn("food", item_container.get_attribute("innerHTML"))
 
         # and price
-        self.assertRegex(item_container.get_attribute("innerHTML"), r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}")
+        self.assertRegex(item_container.get_attribute("innerHTML"), self.PRICE_REGEX)
 
         # Selenie also sees a button to buy the food with the text "Buy now"
+        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
 
         # Intrigued, Selenie clicks the button
 

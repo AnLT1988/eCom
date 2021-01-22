@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from main.views import home_page
-from main.models import Category, Product
+from main.models import Category, Product, ShoppingCart
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -61,6 +61,16 @@ class ProductDetailViewTest(TestCase):
 
         self.assertTrue(hasattr(product, "img_src"))
 
+    def test_redirect_after_post_to_add_to_cart(self):
+        response = self.client.post("/Food/1234/addToCart")
+
+        self.assertRedirects(response, "/Food/1234/")
+
+    def test_post_update_the_cart(self):
+        response = self.client.post("/Food/1234/addToCart")
+        cart = ShoppingCart.objects.first()
+
+        self.assertIn("1234", cart.items)
 
 class CategoryModelTest(TestCase):
 

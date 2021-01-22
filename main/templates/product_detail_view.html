@@ -1,7 +1,7 @@
 <html>
     <title>eCom-Store</title>
     <body>
-        <ul id="item_container">
+        <form id="item_container" method="POST" action="addToCart">
             <div>
                 <img id="product_img" src={{ product.img_src }}/>
                 <div id="product_description">
@@ -9,6 +9,8 @@
                     {{ product.price }} VND
                 </div>
             </div>
-        </ul>
+            <div>
+                <button text="Buy">Buy</button>
+        </form>
     </body>
 </html>

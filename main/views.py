@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Category, Product
+from main.models import Category, Product, ShoppingCart
 from django.db import models
 
 # Create your views here.
@@ -18,3 +18,9 @@ def display_category(request, category):
 def display_product_detail(request, category, sku):
     product = Product.objects.get(SKU=sku)
     return render(request, "product_detail_view.html", {"product": product})
+
+
+def add_to_cart(request, category, sku):
+    ShoppingCart.objects.create(items=[sku])
+
+    return redirect(f"/{category}/{sku}/")
