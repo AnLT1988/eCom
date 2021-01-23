@@ -20,6 +20,7 @@ from main import views as main_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', main_view.home_page, name='home_page'),
+    path('cart/', main_view.display_cart, name='shopping_cart'),
     path('<str:category>/', main_view.display_category, name='category_page'),
     path('<str:category>/<str:sku>/', main_view.display_product_detail, name='product_detail_page'),
     path('<str:category>/<str:sku>/addToCart', main_view.add_to_cart, name='add_to_cart'),

@@ -31,3 +31,9 @@ def add_to_cart(request, category, sku):
 
     messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")
     return redirect(f"/{category}/{sku}/")
+
+
+def display_cart(request):
+    cart = ShoppingCart.objects.first()
+
+    return render(request, "cart_view.html", { "cart_items": cart })

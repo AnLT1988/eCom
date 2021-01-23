@@ -39,5 +39,12 @@
             "description": "This is a second canned food",
             "img_src": "http://placekitten.com/g/200/200"
         }
+    },
+    {
+        "model": "main.shoppingcart",
+        "pk": 1,
+        "fields": {
+            "items": "[\"Item\", \"Item2\"]"
+        }
     }
 ]

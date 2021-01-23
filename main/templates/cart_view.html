@@ -1,0 +1,12 @@
+<html>
+    <title>eCom-Store</title>
+    <body>
+        <table id="cart_item_table">
+            {% for item in cart_items.items %}
+            <tr>
+                <td>{{ item }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

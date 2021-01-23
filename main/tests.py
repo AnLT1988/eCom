@@ -66,11 +66,43 @@ class ProductDetailViewTest(TestCase):
 
         self.assertRedirects(response, "/Food/1234/")
 
-    def test_post_update_the_cart(self):
+    def test_post_update_the_cart_first_item(self):
         response = self.client.post("/Food/1234/addToCart")
         cart = ShoppingCart.objects.first()
 
         self.assertIn("1234", cart.items)
+
+    def test_post_update_the_cart_second_item(self):
+        response = self.client.post("/Food/1234/addToCart")
+        cart = ShoppingCart.objects.first()
+
+        self.assertIn("1234", cart.items)
+
+        response = self.client.post("/Food/1235/addToCart")
+        cart = ShoppingCart.objects.first()
+
+        self.assertIn("1234", cart.items)
+        self.assertIn("1235", cart.items)
+
+
+class CartViewTest(TestCase):
+
+    fixtures = ['category_data.json']
+
+    def test_cart_view_render_correct_template(self):
+        response = self.client.get("/cart/")
+
+        self.assertTemplateUsed(response, "cart_view.html")
+
+    def test_cart_view_function_return_required_fields(self):
+        response = self.client.get("/cart/")
+
+        context = response.context
+
+        cart_items = context['cart_items']
+
+        self.assertIsInstance(cart_items.items, list)
+
 
 class CategoryModelTest(TestCase):
 
