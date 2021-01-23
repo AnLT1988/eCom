@@ -1,4 +1,4 @@
-from django.urls import resolve
+from django.urls import resolve, reverse
 from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -33,6 +33,7 @@ class CategoryViewTest(TestCase):
 
         for product in products:
             self.assertContains(response, product.description)
+            self.assertContains(response, product.SKU)
 
 
 class ProductDetailViewTest(TestCase):
@@ -55,6 +56,11 @@ class ProductDetailViewTest(TestCase):
         another_product = Product.objects.get(SKU="1235")
         self.assertNotContains(response, another_product.description)
 
+    def test_product_detail_view_has_link_to_cart(self):
+        response = self.client.get("/Food/1234/")
+
+        self.assertContains(response, reverse("shopping_cart"))
+
     def test_product_detail_view_has_an_image(self):
         response = self.client.get("/Food/1234/")
         product = response.context['product']
@@ -67,22 +73,28 @@ class ProductDetailViewTest(TestCase):
         self.assertRedirects(response, "/Food/1234/")
 
     def test_post_update_the_cart_first_item(self):
-        response = self.client.post("/Food/1234/addToCart")
+        sku = 1234
+        response = self.client.post(f"/Food/{sku}/addToCart")
         cart = ShoppingCart.objects.first()
+        item = Product.objects.get(SKU=1234)
 
-        self.assertIn("1234", cart.items)
+        self.assertIn(item.description, cart.items)
 
     def test_post_update_the_cart_second_item(self):
-        response = self.client.post("/Food/1234/addToCart")
+        sku = 1234
+        response = self.client.post(f"/Food/{sku}/addToCart")
         cart = ShoppingCart.objects.first()
+        item = Product.objects.get(SKU=sku)
 
-        self.assertIn("1234", cart.items)
+        self.assertIn(item.description, cart.items)
 
-        response = self.client.post("/Food/1235/addToCart")
+        sku_2 = 1235
+        response = self.client.post(f"/Food/{sku_2}/addToCart")
         cart = ShoppingCart.objects.first()
+        item_2 = Product.objects.get(SKU=sku_2)
 
-        self.assertIn("1234", cart.items)
-        self.assertIn("1235", cart.items)
+        self.assertIn(item.description, cart.items)
+        self.assertIn(item_2.description, cart.items)
 
 
 class CartViewTest(TestCase):

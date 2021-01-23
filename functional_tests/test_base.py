@@ -105,13 +105,22 @@ class NewVisitorTest(StaticLiveServerTestCase):
         cart_link.click()
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
 
-        self.assertInHTML("Food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
 
         # However, just a piece of food is not enough for the dinner
         # Selenie decide to go back to the store to buy more items
         # This time, she select another food
         self.browser.get(product_list_url)
-        self.browser.find_elements_by_xpath("//*/a[@href]//img")[1].click()
+        second_product = self.browser.find_elements_by_xpath("//*/a[@href]//img")[1]
+
+        print(second_product.get_attribute("innerHTML"))
+
+        second_product.click()
+
+        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+
+        # Intrigued, Selenie clicks the button
+        add_to_cart_button.click()
 
         cart_link = self.browser.find_element_by_link_text("Shopping cart")
 
@@ -119,8 +128,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         cart_link.click()
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
 
-        self.assertInHTML("a canned food", item_in_cart_table.get_attribute("innerHTML"))
-        self.assertInHTML("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
 
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order

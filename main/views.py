@@ -26,7 +26,9 @@ def add_to_cart(request, category, sku):
     if not cart:
         cart = ShoppingCart()
 
-    cart.items.append(sku)
+    product = Product.objects.get(SKU=sku)
+
+    cart.items.append(product.description)
     cart.save()
 
     messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")

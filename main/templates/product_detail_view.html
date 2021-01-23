@@ -6,6 +6,9 @@
             <div>{{ message }}</div>
             {% endfor %}
         </div>
+        <div>
+            <a href="/cart/">Shopping cart</a>
+        </div>
         <form id="item_container" method="POST" action="addToCart">
             <div>
                 <img id="product_img" src={{ product.img_src }}/>
