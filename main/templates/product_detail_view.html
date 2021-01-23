@@ -1,6 +1,11 @@
 <html>
     <title>eCom-Store</title>
     <body>
+        <div id="message_box">
+            {% for message in messages %}
+            <div>{{ message }}</div>
+            {% endfor %}
+        </div>
         <form id="item_container" method="POST" action="addToCart">
             <div>
                 <img id="product_img" src={{ product.img_src }}/>
@@ -11,6 +16,8 @@
             </div>
             <div>
                 <button text="Buy">Buy</button>
+            </div>
+            {% csrf_token %}
         </form>
     </body>
 </html>

@@ -89,10 +89,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         add_to_cart_button.click()
 
         # She then was prompted that her items has been added to the shopping cart
-        try:
-            WebDriverWait(self.browser, 3).until(EC.alert_is_present(), "Waiting for add to cart")
-        except TimeoutException as e:
-            self.fail("No alert was displayed")
+        # try:
+            # WebDriverWait(self.browser, 3).until(EC.alert_is_present(), "Waiting for add to cart")
+        # except TimeoutException as e:
+            # self.fail("No alert was displayed")
+
+        message_box = self.browser.find_element_by_id("message_box")
+        self.assertIn("Add item to cart successfully", message_box.get_attribute("innerHTML"))
 
 
         # On the top of the page, she finds a link to get her to the shopping cart

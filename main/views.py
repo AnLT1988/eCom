@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib import messages
 from main.models import Category, Product, ShoppingCart
 from django.db import models
 
@@ -21,6 +22,12 @@ def display_product_detail(request, category, sku):
 
 
 def add_to_cart(request, category, sku):
-    ShoppingCart.objects.create(items=[sku])
+    cart = ShoppingCart.objects.first()
+    if not cart:
+        cart = ShoppingCart()
 
+    cart.items.append(sku)
+    cart.save()
+
+    messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")
     return redirect(f"/{category}/{sku}/")
