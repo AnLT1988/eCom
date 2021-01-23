@@ -2,7 +2,9 @@ from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import unittest
 
 
@@ -41,8 +43,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # She clicks on "Food"
         self.browser.find_element_by_link_text("Food").click()
 
-        url = self.browser.current_url
-        self.assertRegex(url, '/Food/')
+        product_list_url = self.browser.current_url
+        self.assertRegex(product_list_url, '/Food/')
 
         # The webpage loads a new page which show a list of food she could choose from
         items = self.browser.find_elements_by_xpath('//*/div[contains(@id, "item_container")]')
@@ -62,8 +64,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.find_element_by_xpath("//*/a[@href]//img").click()
 
         # She was brought to the page where all details of the food could be found
-        url = self.browser.current_url
-        self.assertRegex(url, "/Food/(\d*)/")
+        product_detail_url = self.browser.current_url
+        self.assertRegex(product_detail_url, "/Food/(\d*)/")
 
         item_container = self.browser.find_element_by_xpath('//*[contains(@id, "item_container")]')
 
@@ -84,16 +86,38 @@ class NewVisitorTest(StaticLiveServerTestCase):
         add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
 
         # Intrigued, Selenie clicks the button
+        add_to_cart_button.click()
 
         # She then was prompted that her items has been added to the shopping cart
+        try:
+            WebDriverWait(self.browser, 3).until(EC.alert_is_present(), "Waiting for add to cart")
+        except TimeoutException as e:
+            self.fail("No alert was displayed")
+
 
         # On the top of the page, she finds a link to get her to the shopping cart
+        cart_link = self.browser.find_element_by_link_text("Shopping cart")
 
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
+        cart_link.click()
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+
+        self.assertInHTML("Food", item_in_cart_table.get_attribute("innerHTML"))
 
         # However, just a piece of food is not enough for the dinner
         # Selenie decide to go back to the store to buy more items
         # This time, she select another food
+        self.browser.get(product_list_url)
+        self.browser.find_elements_by_xpath("//*/a[@href]//img")[1].click()
+
+        cart_link = self.browser.find_element_by_link_text("Shopping cart")
+
+        # Openning the shopping cart, Selenie is relieved to see the food she bought was there
+        cart_link.click()
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+
+        self.assertInHTML("a canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertInHTML("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
 
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
