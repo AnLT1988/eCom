@@ -3,7 +3,8 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from main.views import home_page
-from main.models import Category, Product, ShoppingCart
+from main.models import Category, Product, ShoppingCart, CartItem
+from unittest import skip
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -176,3 +177,71 @@ class ProductModelTest(TestCase):
         product.save()
 
         self.assertTrue(hasattr(product, "price"))
+
+
+class ShoppingCartModelTest(TestCase):
+
+    fixtures = ["category_data.json"]
+
+    def test_cart_items_have_all_product_detail(self):
+        category_spec = {
+            'id': '99999',
+            'name': 'Test category',
+        }
+        category = Category.objects.create(**category_spec)
+
+        product_spec = {
+            "description": "This is a test product",
+            "price": 10000,
+            "img_src": "img_src",
+            "SKU": "T1",
+            "category": category
+        }
+
+        product = Product.objects.create(**product_spec)
+
+        cart = ShoppingCart.create_or_update(product)
+
+        cart_items = cart.cart_items.all()
+        self.assertTrue(all(hasattr(cart_item, "product") and hasattr(cart_item, "quantity"))
+                for cart_item in cart_items)
+
+        products = [cart_item.product for cart_item in cart_items]
+        self.assertIn(product, products)
+
+
+class CartItemModelTest(TestCase):
+
+    fixtures = ["category_data.json"]
+
+    def test_can_create_cart_item(self):
+        category_spec = {
+            'id': '99999',
+            'name': 'Test category',
+        }
+        category = Category.objects.create(**category_spec)
+
+        product_spec = {
+            "description": "This is a test product",
+            "price": 10000,
+            "img_src": "img_src",
+            "SKU": "T1",
+            "category": category
+        }
+
+        cart_spec = {
+            "items": []
+        }
+
+        product = Product.objects.create(**product_spec)
+        cart = ShoppingCart.objects.create(**cart_spec)
+
+        cart_item = CartItem()
+        cart_item.product = product
+        cart_item.cart = cart
+        cart_item.save()
+
+        saved_cart_item = CartItem.objects.first()
+        self.assertEqual(cart_item, saved_cart_item)
+        self.assertTrue(cart_item.product.description, product.description)
+        self.assertEqual(cart_item.quantity, 1)

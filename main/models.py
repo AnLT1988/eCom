@@ -23,3 +23,25 @@ class Product(models.Model):
 
 class ShoppingCart(models.Model):
     items = JSONField(default=list)
+
+    @classmethod
+    def create_or_update(cls, product):
+        cart = cls.objects.first()
+        if not cart:
+            cart = cls()
+
+        for cart_item in cart.cart_items.all():
+            print(cart_item)
+            if product == cart_item.product:
+                cart_item.quantity += 1
+                break
+        else:
+            new_cart_item = CartItem.objects.create(product=product, cart=cart)
+
+        return cart
+
+
+class CartItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, unique=False, default=None, blank=False)
+    quantity = models.PositiveSmallIntegerField(default=1)
+    cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE, related_name="cart_items", default=None)
