@@ -15,9 +15,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
     fixtures = ['category_data.json']
 
     def setUp(self):
-        firefox_options = Options()
-        firefox_options.add_argument("--headless")
-        self.browser = webdriver.Firefox(options=firefox_options)
+        self.firefox_options = Options()
+        self.firefox_options.add_argument("--headless")
+        self.browser = webdriver.Firefox(options=self.firefox_options)
         self.browser.implicitly_wait(2)
 
     def tearDown(self):
@@ -131,6 +131,20 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
         self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
 
+        # Selenie turn off the browser, trying to open the browser again as another person
+        self.browser.quit()
+
+        self.browser = webdriver.Firefox(options=self.firefox_options)
+        self.browser.get(self.live_server_url)
+
+        cart_link = self.browser.find_element_by_link_text("Shopping cart")
+
+        # Openning the shopping cart, Selenie is relieved to see the food she bought was there
+        cart_link.click()
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+
+        self.assertNotIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertNotIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
         # clicking the Order button

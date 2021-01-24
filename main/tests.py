@@ -2,7 +2,7 @@ from django.urls import resolve, reverse
 from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
-from main.views import home_page
+from main.views import home_page, CART_ID_SESSION_KEY
 from main.models import Category, Product, ShoppingCart, CartItem
 from unittest import skip
 
@@ -11,9 +11,32 @@ class HomePageTest(TestCase):
 
     fixtures = ['category_data.json']
 
+    def send_request_and_get_cart_id(self):
+        response = self.client.get("/")
+        session = response.client.session
+
+        return session[CART_ID_SESSION_KEY]
+
     def test_home_page_uses_correct_template(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
+
+    def test_create_a_new_cart_for_new_session(self):
+        first_cart = self.send_request_and_get_cart_id()
+        # Clear the current session to simulate a fresh session
+        session = self.client.session
+        session.flush()
+        session.save()
+        # Get cart id for second request
+        second_cart = self.send_request_and_get_cart_id()
+
+        self.assertNotEqual(first_cart, second_cart)
+
+    def test_same_session_has_only_one_cart(self):
+        first_cart = self.send_request_and_get_cart_id()
+        second_cart = self.send_request_and_get_cart_id()
+
+        self.assertEqual(first_cart, second_cart)
 
 
 class CategoryViewTest(TestCase):
@@ -76,7 +99,8 @@ class ProductDetailViewTest(TestCase):
     def test_post_update_the_cart_first_item(self):
         sku = 1234
         response = self.client.post(f"/Food/{sku}/addToCart")
-        cart = ShoppingCart.objects.first()
+        cart_id = response.client.session[CART_ID_SESSION_KEY]
+        cart = ShoppingCart.objects.get(id=cart_id)
         item = Product.objects.get(SKU=1234)
 
         self.assertIn(item.description, cart.items)
@@ -84,14 +108,15 @@ class ProductDetailViewTest(TestCase):
     def test_post_update_the_cart_second_item(self):
         sku = 1234
         response = self.client.post(f"/Food/{sku}/addToCart")
-        cart = ShoppingCart.objects.first()
+        cart_id = response.client.session[CART_ID_SESSION_KEY]
+        cart = ShoppingCart.objects.get(id=cart_id)
         item = Product.objects.get(SKU=sku)
 
         self.assertIn(item.description, cart.items)
 
         sku_2 = 1235
         response = self.client.post(f"/Food/{sku_2}/addToCart")
-        cart = ShoppingCart.objects.first()
+        cart.refresh_from_db()
         item_2 = Product.objects.get(SKU=sku_2)
 
         self.assertIn(item.description, cart.items)
