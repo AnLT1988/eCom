@@ -1,14 +1,8 @@
-{% load static %}
-<html>
-    <head>
-        <title>eCom-Store</title>
-        <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}"/>
-    </head>
-    <body>
-        <ul id="product_category">
-            {% for category in categories %}
-            <li><a href={{ category.get_link }}>{{ category.name }}</li>
-            {% endfor %}
-        </ul>
-    </body>
-</html>
+{% extends 'base.html' %}
+{% block body %}
+<ul id="product_category">
+    {% for category in categories %}
+    <li><a href={{ category.get_link }}>{{ category.name }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,11 +1,9 @@
-<html>
-    <title>eCom-Store</title>
-    <body>
-        {% for product in products %}
-        <div id="item_container_{{ loop.couter }}">
-            <a href='{{ product.SKU }}/'><div><img src={{ product.img_src }}/></div>{{ product.description }}</a>
-            <p>{{ product.price }} VND</p>
-        </div>
-        {% endfor %}
-    </body>
-</html>
+{% extends 'base.html' %}
+{% block body %}
+{% for product in products %}
+<div id="item_container_{{ loop.couter }}">
+    <a href='{{ product.SKU }}/'><div><img src={{ product.img_src }}/></div>{{ product.description }}</a>
+    <p>{{ product.price }} VND</p>
+</div>
+{% endfor %}
+{% endblock %}
