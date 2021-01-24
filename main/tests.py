@@ -141,6 +141,24 @@ class CartViewTest(TestCase):
 
         self.assertIsInstance(cart_items.items, list)
 
+    def test_cart_view_shows_correct_item_being_added(self):
+        sku = 1234
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.get("/cart/")
+        cart_items = response.context['cart_items']
+
+        self.assertSetEqual(set([item]), set([cart_item.product for cart_item in cart_items.cart_items.all()]))
+
+        sku_2 = 1235
+        response = self.client.post(f"/Food/{sku_2}/addToCart")
+        item_2 = Product.objects.get(SKU=sku_2)
+        response = self.client.get("/cart/")
+        cart_items = response.context['cart_items']
+
+        self.assertSetEqual(set([item, item_2]), set([cart_item.product for cart_item in cart_items.cart_items.all()]))
+
 
 class CategoryModelTest(TestCase):
 
@@ -225,7 +243,8 @@ class ShoppingCartModelTest(TestCase):
 
         product = Product.objects.create(**product_spec)
 
-        cart = ShoppingCart.create_or_update(product)
+        cart = ShoppingCart.objects.create()
+        cart = cart.create_or_update(product)
 
         cart_items = cart.cart_items.all()
         self.assertTrue(all(hasattr(cart_item, "product") and hasattr(cart_item, "quantity"))

@@ -37,6 +37,7 @@ def add_to_cart(request, category, sku):
     product = Product.objects.get(SKU=sku)
 
     cart.items.append(product.description)
+    cart = cart.create_or_update(product)
     cart.save()
 
     messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")
@@ -44,6 +45,11 @@ def add_to_cart(request, category, sku):
 
 
 def display_cart(request):
-    cart = ShoppingCart.objects.first()
+    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
+    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+
+    if created:
+        # If new cart is created, store in session
+        request.session[CART_ID_SESSION_KEY] = cart.id
 
     return render(request, "cart_view.html", { "cart_items": cart })

@@ -24,21 +24,15 @@ class Product(models.Model):
 class ShoppingCart(models.Model):
     items = JSONField(default=list)
 
-    @classmethod
-    def create_or_update(cls, product):
-        cart = cls.objects.first()
-        if not cart:
-            cart = cls()
-
-        for cart_item in cart.cart_items.all():
-            print(cart_item)
+    def create_or_update(self, product):
+        for cart_item in self.cart_items.all():
             if product == cart_item.product:
                 cart_item.quantity += 1
                 break
         else:
-            new_cart_item = CartItem.objects.create(product=product, cart=cart)
+            new_cart_item = CartItem.objects.create(product=product, cart=self)
 
-        return cart
+        return self
 
 
 class CartItem(models.Model):
