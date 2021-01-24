@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block body %}
 <table id="cart_item_table">
-    {% for item in cart_items.items %}
+    {% for item in cart_items.cart_items.all %}
     <tr>
-        <td>{{ item }}</td>
+        <td>{{ item.product.description }}</td>
     </tr>
     {% endfor %}
 </table>
