@@ -127,6 +127,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
         cart_link.click()
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
+
+        # Exactly 2 items that were added
+        self.assertEqual(len(items_in_table), 2)
 
         self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
         self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
@@ -139,12 +143,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         cart_link = self.browser.find_element_by_link_text("Shopping cart")
 
-        # Openning the shopping cart, Selenie is relieved to see the food she bought was there
+        # Openning the shopping cart, it's empty as expected.
         cart_link.click()
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
 
-        self.assertNotIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
-        self.assertNotIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertEqual(len(items_in_table), 0)
+
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
         # clicking the Order button
