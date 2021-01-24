@@ -22,9 +22,8 @@ class Product(models.Model):
 
 
 class ShoppingCart(models.Model):
-    items = JSONField(default=list)
 
-    def create_or_update(self, product):
+    def add_or_update(self, product):
         for cart_item in self.cart_items.all():
             if product == cart_item.product:
                 cart_item.quantity += 1

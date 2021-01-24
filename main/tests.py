@@ -103,7 +103,7 @@ class ProductDetailViewTest(TestCase):
         cart = ShoppingCart.objects.get(id=cart_id)
         item = Product.objects.get(SKU=1234)
 
-        self.assertIn(item.description, cart.items)
+        self.assertIn(item, [i.product for i in cart.cart_items.all()])
 
     def test_post_update_the_cart_second_item(self):
         sku = 1234
@@ -112,15 +112,17 @@ class ProductDetailViewTest(TestCase):
         cart = ShoppingCart.objects.get(id=cart_id)
         item = Product.objects.get(SKU=sku)
 
-        self.assertIn(item.description, cart.items)
+        self.assertIn(item, [i.product for i in cart.cart_items.all()])
 
         sku_2 = 1235
         response = self.client.post(f"/Food/{sku_2}/addToCart")
         cart.refresh_from_db()
         item_2 = Product.objects.get(SKU=sku_2)
 
-        self.assertIn(item.description, cart.items)
-        self.assertIn(item_2.description, cart.items)
+        cart_items = [i.product for i in cart.cart_items.all()]
+
+        self.assertIn(item, cart_items)
+        self.assertIn(item_2, cart_items)
 
 
 class CartViewTest(TestCase):
@@ -131,15 +133,6 @@ class CartViewTest(TestCase):
         response = self.client.get("/cart/")
 
         self.assertTemplateUsed(response, "cart_view.html")
-
-    def test_cart_view_function_return_required_fields(self):
-        response = self.client.get("/cart/")
-
-        context = response.context
-
-        cart_items = context['cart_items']
-
-        self.assertIsInstance(cart_items.items, list)
 
     def test_cart_view_shows_correct_item_being_added(self):
         sku = 1234
@@ -244,7 +237,7 @@ class ShoppingCartModelTest(TestCase):
         product = Product.objects.create(**product_spec)
 
         cart = ShoppingCart.objects.create()
-        cart = cart.create_or_update(product)
+        cart = cart.add_or_update(product)
 
         cart_items = cart.cart_items.all()
         self.assertTrue(all(hasattr(cart_item, "product") and hasattr(cart_item, "quantity"))
@@ -274,7 +267,6 @@ class CartItemModelTest(TestCase):
         }
 
         cart_spec = {
-            "items": []
         }
 
         product = Product.objects.create(**product_spec)

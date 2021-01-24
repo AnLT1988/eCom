@@ -36,9 +36,7 @@ def add_to_cart(request, category, sku):
 
     product = Product.objects.get(SKU=sku)
 
-    cart.items.append(product.description)
-    cart = cart.create_or_update(product)
-    cart.save()
+    cart = cart.add_or_update(product)
 
     messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")
     return redirect(f"/{category}/{sku}/")

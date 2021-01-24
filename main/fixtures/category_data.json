@@ -44,7 +44,6 @@
         "model": "main.shoppingcart",
         "pk": 1,
         "fields": {
-            "items": "[\"Item\", \"Item2\"]"
         }
     }
 ]
