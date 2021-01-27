@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block body %}
 <table id="cart_item_table">
     {% for item in cart_items.cart_items.all %}
@@ -14,11 +15,6 @@
 </table>
 {% endblock %}
 {% block script %}
-<script>
-console.log("Hi there");
-function incrCartItem(itemId) {
-    quantity = document.getElementById(itemId)
-    quantity.innerText = Number(quantity.innerText) + 1;
-}
+<script src="{% static 'shopping_cart.js' %}">
 </script>
 {% endblock %}

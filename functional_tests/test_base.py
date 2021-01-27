@@ -176,11 +176,12 @@ class NewVisitorTest(StaticLiveServerTestCase):
             desc_button = item.find_element_by_xpath('//button[contains(@id, "decrease")]')
 
         # clicking on increase, the quantity increase by one.
+        current_quantity = int(quantity_element.text)
         inc_button.click()
-        new_quantity = item.find_element_by_xpath('//[contains(@id, "quantity")]').value
+        new_quantity = item.find_element_by_xpath('//*[contains(@id, "quantity")]').text
         print(new_quantity)
 
-        self.assertEqual(quantity_element.value + 1, new_quantity)
+        self.assertEqual(current_quantity + 1, int(new_quantity))
 
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
