@@ -15,3 +15,6 @@ __pycache__
 # vim files
 work.vim
 *.vim 
+
+# static folder for production
+static_root
