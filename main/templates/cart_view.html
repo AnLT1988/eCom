@@ -12,9 +12,11 @@
         </td>
     </tr>
     {% endfor %}
+    <button id="update" disabled="true">Update</button>
 </table>
 {% endblock %}
 {% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{% static 'shopping_cart.js' %}">
 </script>
 {% endblock %}

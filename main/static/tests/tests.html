@@ -8,17 +8,19 @@
     </head>
     <body>
         <div id="qunit"></div>
-        <div id="qunit-fixture"></div>
-        <table id="cart_item_table">
-            <tr>
-                <td>product description</td>
-                <td>
-                    <button id="increase" onclick="incrCartItem('quantity')">Increase</button>
-                    <div id="quantity">1</div>
-                    <button id="decrease">Descrease</button>
-                </td>
-            </tr>
-        </table>
+        <div id="qunit-fixture">
+            <table id="cart_item_table">
+                <tr>
+                    <td>product description</td>
+                    <td>
+                        <button id="increase" onclick="incrCartItem('quantity')">Increase</button>
+                        <div id="quantity">1</div>
+                        <button id="decrease">Descrease</button>
+                    </td>
+                </tr>
+            </table>
+            <button id="update" disabled='true'>Update</button>
+        </div>
         <script src="https://code.jquery.com/qunit/qunit-2.14.0.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="../shopping_cart.js"></script>
@@ -28,11 +30,20 @@
                 QUnit.test('should add two numbers', function(assert) {
                     assert.equal(add(1, 1), 2, '1 + 1 = 2');
                 });
+
                 QUnit.test('should increase the numbers', function(assert) {
                     let quantity = $('#quantity').text();
                     console.log('Quantity:' + quantity)
                     $('#increase').trigger("click");
                     assert.equal(Number(quantity) + 1, Number($('#quantity').text()));
+                })
+
+                QUnit.test('should enable the update button', function(assert) {
+                    let updateButton = $('#update')
+                    assert.equal(updateButton.is(':disabled'), true)
+
+                    $('#increase').trigger("click");
+                    assert.equal(updateButton.is(':disabled'), false)
                 })
             });
         </script>

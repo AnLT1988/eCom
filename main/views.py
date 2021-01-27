@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse
 from django.contrib import messages
 from main.models import Category, Product, ShoppingCart
@@ -51,3 +51,19 @@ def display_cart(request):
         request.session[CART_ID_SESSION_KEY] = cart.id
 
     return render(request, "cart_view.html", { "cart_items": cart })
+
+def update_cart(request):
+    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
+    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+
+    update_data = request.POST
+    sku = update_data['item']
+    quantity = update_data['quantity']
+
+    cart_item = cart.cart_items.get(product__SKU=sku)
+    cart_item.quantity = quantity
+    cart_item.save()
+
+    cart_item = cart.cart_items.get(product__SKU=sku)
+
+    return redirect(reverse("shopping_cart"))

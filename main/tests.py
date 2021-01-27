@@ -11,11 +11,15 @@ class HomePageTest(TestCase):
 
     fixtures = ['category_data.json']
 
-    def send_request_and_get_cart_id(self):
-        response = self.client.get("/")
+    def get_session_cart_id(self, response):
         session = response.client.session
 
         return session[CART_ID_SESSION_KEY]
+
+    def send_request_and_get_cart_id(self):
+        response = self.client.get("/")
+
+        return self.get_session_cart_id(response)
 
     def test_home_page_uses_correct_template(self):
         response = self.client.get("/")
@@ -125,9 +129,14 @@ class ProductDetailViewTest(TestCase):
         self.assertIn(item_2, cart_items)
 
 
-class CartViewTest(TestCase):
+class ShoppingCartViewTest(TestCase):
 
     fixtures = ['category_data.json']
+
+    def get_session_cart_id(self, response):
+        session = response.client.session
+
+        return session[CART_ID_SESSION_KEY]
 
     def test_cart_view_render_correct_template(self):
         response = self.client.get("/cart/")
@@ -152,6 +161,25 @@ class CartViewTest(TestCase):
 
         self.assertSetEqual(set([item, item_2]), set([cart_item.product for cart_item in cart_items.cart_items.all()]))
 
+    def test_can_update_quantity_of_the_cart_item(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.post("/cart/update", { 'item': sku, 'quantity': new_quantity })
+        cart_id = self.get_session_cart_id(response)
+        print("Cart_id is:", cart_id)
+        shopping_cart = ShoppingCart.objects.get(id=cart_id)
+
+        found = False
+        for item in shopping_cart.cart_items.all():
+            if item.product.SKU == sku:
+                found = True
+                self.assertEqual(new_quantity, item.quantity)
+
+        if not found:
+            self.fail("Cannot find the added product")
 
 class CategoryModelTest(TestCase):
 

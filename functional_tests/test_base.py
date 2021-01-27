@@ -183,6 +183,31 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         self.assertEqual(current_quantity + 1, int(new_quantity))
 
+        # after increasing of the quantity, she finds that the update button was enabled
+        update_button = self.browser.find_element_by_xpath("//button[contains(@id, 'update')]")
+
+        self.assertTrue(update_button.is_enabled())
+
+        # she clicks the button, a message shows that her cart is updated successfully
+        expected_message = "update successfully"
+        self.assertIn(expected_message, self.browser.page_source)
+
+        shopping_cart_url = self.browser.current_url
+        # doesn't believe, she navigate to homepage then comeback to see if her items is actually updated
+        self.browser.get(self.live_server_url)
+        self.browser.get(shopping_cart_url)
+
+        for item in items_in_table:
+            quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
+            inc_button = item.find_element_by_xpath('//button[contains(@id, "increase")]')
+            desc_button = item.find_element_by_xpath('//button[contains(@id, "decrease")]')
+
+        # clicking on increase, the quantity increase by one.
+        current_quantity = int(quantity_element.text)
+        self.assertEqual(current_quantity, new_quantity)
+
+        # when she opens the shopping cart again, the quantity of the item was indeed updated.
+
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
         # clicking the Order button
