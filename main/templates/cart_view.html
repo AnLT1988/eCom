@@ -12,7 +12,7 @@
         <td>
             <input type=button id="increase" onclick="incrCartItem('quantity')" value=Increase>
             <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.quantity }}>
-            <input type=button id="decrease" value=Descrease>
+            <input type=button id="decrease" onclick="decrCartItem('quantity')" value=Descrease>
         </td>
     </tr>
     {% endfor %}
