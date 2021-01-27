@@ -150,6 +150,38 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         self.assertEqual(len(items_in_table), 0)
 
+        # Selenie then add another product
+        self.browser.get(product_list_url)
+        second_product = self.browser.find_elements_by_xpath("//*/a[@href]//img")[1]
+
+        print(second_product.get_attribute("innerHTML"))
+
+        second_product.click()
+
+        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+
+        # Intrigued, Selenie clicks the button
+        add_to_cart_button.click()
+
+        # Selenie goto the shopping cart to adjust the quantity
+        cart_link = self.browser.find_element_by_link_text("Shopping cart")
+        cart_link.click()
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
+
+        # She can find the number of item showing, and a pair of button to increase and decrease
+        for item in items_in_table:
+            quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
+            inc_button = item.find_element_by_xpath('//button[contains(@id, "increase")]')
+            desc_button = item.find_element_by_xpath('//button[contains(@id, "decrease")]')
+
+        # clicking on increase, the quantity increase by one.
+        inc_button.click()
+        new_quantity = item.find_element_by_xpath('//[contains(@id, "quantity")]').value
+        print(new_quantity)
+
+        self.assertEqual(quantity_element.value + 1, new_quantity)
+
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
         # clicking the Order button

@@ -4,7 +4,21 @@
     {% for item in cart_items.cart_items.all %}
     <tr>
         <td>{{ item.product.description }}</td>
+        <td>
+            <button id="increase" onclick="incrCartItem('quantity')">Increase</button>
+            <div id="quantity">{{ item.quantity }}</div>
+            <button id="decrease">Descrease</button>
+        </td>
     </tr>
     {% endfor %}
 </table>
+{% endblock %}
+{% block script %}
+<script>
+console.log("Hi there");
+function incrCartItem(itemId) {
+    quantity = document.getElementById(itemId)
+    quantity.innerText = Number(quantity.innerText) + 1;
+}
+</script>
 {% endblock %}
