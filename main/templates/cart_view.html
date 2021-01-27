@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block body %}
+<form method="POST" action={% url "update_cart" %}>
 <table id="cart_item_table">
     {% for item in cart_items.cart_items.all %}
     <tr>
-        <td>{{ item.product.description }}</td>
         <td>
-            <button id="increase" onclick="incrCartItem('quantity')">Increase</button>
-            <div id="quantity">{{ item.quantity }}</div>
-            <button id="decrease">Descrease</button>
+            <input name="product_description" type="label">{{ item.product.description }}</input>
+            <input name="item" visibility="show" value={{ item.product.SKU }}>
+        </td>
+        <td>
+            <input type=button id="increase" onclick="incrCartItem('quantity')" value=Increase>
+            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.quantity }}>
+            <input type=button id="decrease" value=Descrease>
         </td>
     </tr>
     {% endfor %}
     <button id="update" disabled="true">Update</button>
 </table>
+{% csrf_token %}
+</form>
 {% endblock %}
 {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

@@ -113,7 +113,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(product_list_url)
         second_product = self.browser.find_elements_by_xpath("//*/a[@href]//img")[1]
 
-        print(second_product.get_attribute("innerHTML"))
 
         second_product.click()
 
@@ -154,8 +153,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(product_list_url)
         second_product = self.browser.find_elements_by_xpath("//*/a[@href]//img")[1]
 
-        print(second_product.get_attribute("innerHTML"))
-
         second_product.click()
 
         add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
@@ -172,14 +169,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # She can find the number of item showing, and a pair of button to increase and decrease
         for item in items_in_table:
             quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
-            inc_button = item.find_element_by_xpath('//button[contains(@id, "increase")]')
-            desc_button = item.find_element_by_xpath('//button[contains(@id, "decrease")]')
+            inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
+            desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
 
         # clicking on increase, the quantity increase by one.
-        current_quantity = int(quantity_element.text)
+        current_quantity = int(quantity_element.get_attribute("value"))
         inc_button.click()
-        new_quantity = item.find_element_by_xpath('//*[contains(@id, "quantity")]').text
-        print(new_quantity)
+        new_quantity = item.find_element_by_xpath('//*[contains(@id, "quantity")]').get_attribute("value")
 
         self.assertEqual(current_quantity + 1, int(new_quantity))
 
@@ -189,7 +185,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertTrue(update_button.is_enabled())
 
         # she clicks the button, a message shows that her cart is updated successfully
+        update_button.click()
         expected_message = "update successfully"
+        message_box = self.browser.find_element_by_id("message_box")
         self.assertIn(expected_message, self.browser.page_source)
 
         shopping_cart_url = self.browser.current_url
@@ -197,14 +195,16 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.browser.get(shopping_cart_url)
 
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
         for item in items_in_table:
             quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
-            inc_button = item.find_element_by_xpath('//button[contains(@id, "increase")]')
-            desc_button = item.find_element_by_xpath('//button[contains(@id, "decrease")]')
+            inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
+            desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
 
         # clicking on increase, the quantity increase by one.
-        current_quantity = int(quantity_element.text)
-        self.assertEqual(current_quantity, new_quantity)
+        current_quantity = int(quantity_element.get_attribute("value"))
+        self.assertEqual(current_quantity, int(new_quantity))
 
         # when she opens the shopping cart again, the quantity of the item was indeed updated.
 

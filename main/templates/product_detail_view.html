@@ -1,10 +1,5 @@
 {% extends 'base.html' %}
 {% block body %}
-<div id="message_box">
-    {% for message in messages %}
-    <div>{{ message }}</div>
-    {% endfor %}
-</div>
 <form id="item_container" method="POST" action="addToCart">
     <div>
         <img id="product_img" src={{ product.img_src }}/>

@@ -8,6 +8,11 @@
         <div>
             <a href="/cart/">Shopping cart</a>
         </div>
+        <div id="message_box">
+            {% for message in messages %}
+            <div>{{ message }}</div>
+            {% endfor %}
+        </div>
         {% block body %} {% endblock %}
         {% block script %}{% endblock %}
     </body>

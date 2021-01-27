@@ -169,7 +169,6 @@ class ShoppingCartViewTest(TestCase):
 
         response = self.client.post("/cart/update", { 'item': sku, 'quantity': new_quantity })
         cart_id = self.get_session_cart_id(response)
-        print("Cart_id is:", cart_id)
         shopping_cart = ShoppingCart.objects.get(id=cart_id)
 
         found = False

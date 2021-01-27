@@ -57,13 +57,16 @@ def update_cart(request):
     cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
 
     update_data = request.POST
-    sku = update_data['item']
-    quantity = update_data['quantity']
+    sku = update_data.getlist('item')
+    quantity = update_data.getlist('quantity')
 
-    cart_item = cart.cart_items.get(product__SKU=sku)
-    cart_item.quantity = quantity
-    cart_item.save()
+    data = [{'sku': x, 'quantity': y} for x, y in zip(sku, quantity)]
 
-    cart_item = cart.cart_items.get(product__SKU=sku)
+    for d in data:
+        cart_item = cart.cart_items.get(product__SKU=d['sku'])
+        cart_item.quantity = d['quantity']
+        cart_item.save()
+
+    messages.add_message(request, messages.SUCCESS, "update successfully")
 
     return redirect(reverse("shopping_cart"))
