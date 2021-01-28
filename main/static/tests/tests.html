@@ -9,16 +9,18 @@
     <body>
         <div id="qunit"></div>
         <div id="qunit-fixture">
-            <table id="cart_item_table">
-                <tr>
-                    <td>product description</td>
-                    <td>
-                        <button id="increase" onclick="incrCartItem('quantity')">Increase</button>
-                        <div id="quantity">1</div>
-                        <button id="decrease">Descrease</button>
-                    </td>
-                </tr>
-            </table>
+            <form>
+                <table id="cart_item_table">
+                    <tr>
+                        <td>product description</td>
+                        <td>
+                            <input type=button id="increase" onclick="incrCartItem('quantity')" value=Increase>
+                            <input type=text id="quantity" value=1>
+                            <input type=button id="decrease" value=Decrease>
+                        </td>
+                    </tr>
+                </table>
+            </form>
             <button id="update" disabled='true'>Update</button>
         </div>
         <script src="https://code.jquery.com/qunit/qunit-2.14.0.js"></script>
@@ -32,10 +34,10 @@
                 });
 
                 QUnit.test('should increase the numbers', function(assert) {
-                    let quantity = $('#quantity').text();
+                    let quantity = $('#quantity').attr('value');
                     console.log('Quantity:' + quantity)
                     $('#increase').trigger("click");
-                    assert.equal(Number(quantity) + 1, Number($('#quantity').text()));
+                    assert.equal(Number(quantity) + 1, Number($('#quantity').attr('value')));
                 })
 
                 QUnit.test('should enable the update button', function(assert) {
