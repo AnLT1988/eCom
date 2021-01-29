@@ -53,8 +53,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         cart_items = self.get_table_rows(table_id="cart_item_table")
         item_data = []
         for index, item in enumerate(cart_items):
-            description_element = item.find_element_by_xpath(f'//tr[{index + 1}]/td/input[contains(@id, "description")]')
-            quantity_element = item.find_element_by_xpath(f'//tr[{index + 1}]/td/input[contains(@id, "quantity")]')
+            description_element = item.find_element_by_xpath(f'.//input[contains(@id, "description")]')
+            quantity_element = item.find_element_by_xpath(f'.//input[contains(@id, "quantity")]')
             temp_dict = {
                 "description": description_element.get_attribute("value"),
                 "quantity": quantity_element.get_attribute("value")
