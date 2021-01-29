@@ -8,9 +8,14 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import unittest
 
 
-class NewVisitorTest(StaticLiveServerTestCase):
+# Look for 0 or 0.000 or \d\d.000. End with 3 character for currency, e.g. vnd usd
+PRICE_REGEX = r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}"
+CATEGORY_LIST_XPATH = "//*[contains(@id, 'product_category')]"
+ITEM_CONTAINER_XPATH = "//*[contains(@id, 'item_container')]"
+PRODUCT_IMAGE_XPATH = "//a[@href]//img[@src]"
 
-    PRICE_REGEX = r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}"
+
+class NewVisitorTest(StaticLiveServerTestCase):
 
     fixtures = ['category_data.json']
 
@@ -23,6 +28,47 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def find_add_to_cart_button(self):
+        return self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+
+    def find_link_to_shopping_cart(self):
+        return self.browser.find_element_by_link_text("Shopping cart")
+
+    def navigate_to_shopping_cart(self):
+        cart_link = self.find_link_to_shopping_cart()
+        cart_link.click()
+
+    def verify_shopping_cart_quantity_button(self, item):
+        quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
+        inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
+        desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
+
+        current_quantity = int(quantity_element.get_attribute("value"))
+        inc_button.click()
+        new_quantity = item.find_element_by_xpath('//*[contains(@id, "quantity")]').get_attribute("value")
+
+        self.assertEqual(current_quantity + 1, int(new_quantity))
+
+    def get_items_data_from_shopping_cart(self):
+        cart_items = self.get_table_rows(table_id="cart_item_table")
+        item_data = []
+        for index, item in enumerate(cart_items):
+            description_element = item.find_element_by_xpath(f'//tr[{index + 1}]/td/input[contains(@id, "description")]')
+            quantity_element = item.find_element_by_xpath(f'//tr[{index + 1}]/td/input[contains(@id, "quantity")]')
+            temp_dict = {
+                "description": description_element.get_attribute("value"),
+                "quantity": quantity_element.get_attribute("value")
+            }
+            item_data.append(temp_dict)
+
+        return item_data
+
+    def get_table_rows(self, table_id):
+        table = self.browser.find_element_by_id(table_id)
+        item_rows = table.find_elements_by_tag_name("tr")
+
+        return item_rows
+
     def test_shoper_can_place_an_order(self):
         # Selenie knows about out new eCommerce site
         # so she visits the site
@@ -31,7 +77,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn("eCom-Store", self.browser.title)
         # Upon getting to the site, Selenie could see some a list of product category
         # that she could click on
-        categories = self.browser.find_element_by_id("product_category")
+        categories = self.browser.find_element_by_xpath(CATEGORY_LIST_XPATH)
         items = categories.find_elements_by_tag_name("li")
         categories = [item.text.lower() for item in items]
         expected_categories = ['Food', 'Household', 'Computer']
@@ -47,27 +93,27 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertRegex(product_list_url, '/Food/')
 
         # The webpage loads a new page which show a list of food she could choose from
-        items = self.browser.find_elements_by_xpath('//*/div[contains(@id, "item_container")]')
+        items = self.browser.find_elements_by_xpath(ITEM_CONTAINER_XPATH)
 
         self.assertGreaterEqual(len(items), 2, "Failed to find [@id='item_container']. Was looking for list of product")
         for item in items:
             # Each food shows a clickable image
-            self.assertTrue(item.find_elements_by_xpath("a[@href]//img[@src]"), "Cannot find product image")
+            self.assertTrue(item.find_elements_by_xpath(PRODUCT_IMAGE_XPATH), "Cannot find product image")
 
             # name of the food
             self.assertIn("food", item.get_attribute("innerHTML"))
 
             # and its price
-            self.assertRegex(item.get_attribute("innerHTML"), self.PRICE_REGEX)
+            self.assertRegex(item.get_attribute("innerHTML"), PRICE_REGEX)
 
         # Selenie click on a food
-        self.browser.find_element_by_xpath("//*/a[@href]//img").click()
+        self.browser.find_element_by_xpath(PRODUCT_IMAGE_XPATH).click()
 
         # She was brought to the page where all details of the food could be found
         product_detail_url = self.browser.current_url
         self.assertRegex(product_detail_url, "/Food/(\d*)/")
 
-        item_container = self.browser.find_element_by_xpath('//*[contains(@id, "item_container")]')
+        item_container = self.browser.find_element_by_xpath(ITEM_CONTAINER_XPATH)
 
         # The page show an image of the product
         try:
@@ -80,10 +126,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn("food", item_container.get_attribute("innerHTML"))
 
         # and price
-        self.assertRegex(item_container.get_attribute("innerHTML"), self.PRICE_REGEX)
+        self.assertRegex(item_container.get_attribute("innerHTML"), PRICE_REGEX)
 
         # Selenie also sees a button to buy the food with the text "Buy now"
-        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+        add_to_cart_button = self.find_add_to_cart_button()
 
         # Intrigued, Selenie clicks the button
         add_to_cart_button.click()
@@ -99,40 +145,35 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
 
         # On the top of the page, she finds a link to get her to the shopping cart
-        cart_link = self.browser.find_element_by_link_text("Shopping cart")
-
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
-        cart_link.click()
-        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        self.navigate_to_shopping_cart()
+        shopping_cart_data = self.get_items_data_from_shopping_cart()
 
-        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertTrue(any("a canned food" in item['description'] for item in shopping_cart_data))
 
         # However, just a piece of food is not enough for the dinner
         # Selenie decide to go back to the store to buy more items
         # This time, she select another food
         self.browser.get(product_list_url)
         second_product = self.browser.find_elements_by_xpath("//*/a[@href]//img")[1]
-
-
         second_product.click()
 
-        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+        add_to_cart_button = self.find_add_to_cart_button()
 
         # Intrigued, Selenie clicks the button
         add_to_cart_button.click()
 
-        cart_link = self.browser.find_element_by_link_text("Shopping cart")
-
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
-        cart_link.click()
-        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
-        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
+        self.navigate_to_shopping_cart()
+        items_in_table = self.get_table_rows("cart_item_table")
 
         # Exactly 2 items that were added
         self.assertEqual(len(items_in_table), 2)
 
-        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
-        self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
+        shopping_cart_data = self.get_items_data_from_shopping_cart()
+
+        self.assertTrue(any("a canned food" in item['description'] for item in shopping_cart_data))
+        self.assertTrue(any("a second canned food" in item['description'] for item in shopping_cart_data))
 
         # Selenie turn off the browser, trying to open the browser again as another person
         self.browser.quit()
@@ -140,12 +181,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser = webdriver.Firefox(options=self.firefox_options)
         self.browser.get(self.live_server_url)
 
-        cart_link = self.browser.find_element_by_link_text("Shopping cart")
-
         # Openning the shopping cart, it's empty as expected.
-        cart_link.click()
-        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
-        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
+        self.navigate_to_shopping_cart()
+        items_in_table = self.get_table_rows("cart_item_table")
 
         self.assertEqual(len(items_in_table), 0)
 
@@ -155,29 +193,20 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         second_product.click()
 
-        add_to_cart_button = self.browser.find_element_by_xpath("//button[contains(text(), 'buy') or contains(text(), 'Buy') or contains(text(), 'Add to cart')]")
+        add_to_cart_button = self.find_add_to_cart_button()
 
         # Intrigued, Selenie clicks the button
         add_to_cart_button.click()
 
         # Selenie goto the shopping cart to adjust the quantity
-        cart_link = self.browser.find_element_by_link_text("Shopping cart")
-        cart_link.click()
+        self.navigate_to_shopping_cart()
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
         items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
 
         # She can find the number of item showing, and a pair of button to increase and decrease
         for item in items_in_table:
-            quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
-            inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
-            desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
-
-        # clicking on increase, the quantity increase by one.
-        current_quantity = int(quantity_element.get_attribute("value"))
-        inc_button.click()
-        new_quantity = item.find_element_by_xpath('//*[contains(@id, "quantity")]').get_attribute("value")
-
-        self.assertEqual(current_quantity + 1, int(new_quantity))
+            # clicking on increase, the quantity increase by one.
+            self.verify_shopping_cart_quantity_button(item)
 
         # after increasing of the quantity, she finds that the update button was enabled
         update_button = self.browser.find_element_by_xpath("//button[contains(@id, 'update')]")
@@ -190,22 +219,20 @@ class NewVisitorTest(StaticLiveServerTestCase):
         message_box = self.browser.find_element_by_id("message_box")
         self.assertIn(expected_message, self.browser.page_source)
 
-        shopping_cart_url = self.browser.current_url
+        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
+
+        item_data = self.get_items_data_from_shopping_cart()
         # doesn't believe, she navigate to homepage then comeback to see if her items is actually updated
         self.browser.get(self.live_server_url)
-        self.browser.get(shopping_cart_url)
+        self.navigate_to_shopping_cart()
 
         # when she opens the shopping cart again, the quantity of the item was indeed updated.
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
         items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
-        for item in items_in_table:
-            quantity_element = item.find_element_by_xpath('//*[contains(@id, "quantity")]')
-            inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
-            desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
+        current_item_data = self.get_items_data_from_shopping_cart()
 
-        current_quantity = int(quantity_element.get_attribute("value"))
-        self.assertEqual(current_quantity, int(new_quantity))
-
+        self.assertListEqual(item_data, current_item_data)
 
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order

@@ -6,7 +6,7 @@
     {% for item in cart_items.cart_items.all %}
     <tr>
         <td>
-            <input name="product_description" type="label">{{ item.product.description }}</input>
+            <input id="product-{{ forloop.counter }}-description" name="product_description" type="text" value="{{ item.product.description }}"/>
             <input name="item" visibility="show" value={{ item.product.SKU }}>
         </td>
         <td>
