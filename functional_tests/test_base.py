@@ -195,6 +195,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.browser.get(shopping_cart_url)
 
+        # when she opens the shopping cart again, the quantity of the item was indeed updated.
         item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
         items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
         for item in items_in_table:
@@ -202,30 +203,46 @@ class NewVisitorTest(StaticLiveServerTestCase):
             inc_button = item.find_element_by_xpath('//input[contains(@id, "increase")]')
             desc_button = item.find_element_by_xpath('//input[contains(@id, "decrease")]')
 
-        # clicking on increase, the quantity increase by one.
         current_quantity = int(quantity_element.get_attribute("value"))
         self.assertEqual(current_quantity, int(new_quantity))
 
-        # when she opens the shopping cart again, the quantity of the item was indeed updated.
 
         # After adding the food to shopping cart, Selenie want to checkout
         # by reviewing her shopping cart, she finds a button namely Order
         # clicking the Order button
+        order_button = self.browser.find_element_by_xpath('//button[contains(@id, "order")]')
+        order_button.click()
 
         # She was show the summary of her items
         # including all items she has selected
+        item_in_cart_table = self.browser.find_element_by_id("order_summary_table")
+        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
 
-        # with quantity of each item
+        # Exactly 2 items that were added
+        self.assertEqual(len(items_in_table), 2)
 
-        # price of each unit
+        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
+        self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
 
-        # and total amount for each items
+        for item in items_in_table:
+            # with quantity of each item
+            quantity_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "quantity")]')
+
+            # price of each unit
+            price_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "price")]')
+
+            # and total amount for each items
+            total_amount_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "total")]')
 
         # as well as the total amount she has to pay
+        total_order_amount_element_found = self.browser.find_element_by_xpath('//input[type=text and contains(@id, "totalAmount")]')
 
         # content, she pressed "Purchase"
+        purchase_button = self.browser.find_element_by_xpath('//button[contains(@id, "purchase")]')
+        purchase_button.click()
 
         # A congratulation message was showed and her Order Id was printed on the screen
+        self.assertIn("your order is successfully created", self.browser.page_source)
         self.fail("Finish the functional test")
 
 
