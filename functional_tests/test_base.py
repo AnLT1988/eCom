@@ -221,21 +221,20 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Exactly 2 items that were added
         self.assertEqual(len(items_in_table), 2)
 
-        self.assertIn("a canned food", item_in_cart_table.get_attribute("innerHTML"))
         self.assertIn("a second canned food", item_in_cart_table.get_attribute("innerHTML"))
 
         for item in items_in_table:
             # with quantity of each item
-            quantity_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "quantity")]')
+            quantity_element_found = item.find_element_by_xpath('//input[@type="text" and contains(@id, "quantity")]')
 
             # price of each unit
-            price_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "price")]')
+            price_element_found = item.find_element_by_xpath('//input[@type="text" and contains(@id, "price")]')
 
             # and total amount for each items
-            total_amount_element_found = item.find_element_by_xpath('//input[type=text and contains(@id, "total")]')
+            total_amount_element_found = item.find_element_by_xpath('//input[@type="text" and contains(@id, "total")]')
 
         # as well as the total amount she has to pay
-        total_order_amount_element_found = self.browser.find_element_by_xpath('//input[type=text and contains(@id, "totalAmount")]')
+        total_order_amount_element_found = self.browser.find_element_by_xpath('//input[@type="text" and contains(@id, "totalAmount")]')
 
         # content, she pressed "Purchase"
         purchase_button = self.browser.find_element_by_xpath('//button[contains(@id, "purchase")]')

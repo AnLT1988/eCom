@@ -180,6 +180,34 @@ class ShoppingCartViewTest(TestCase):
         if not found:
             self.fail("Cannot find the added product")
 
+
+class OrderSummaryViewTest(TestCase):
+
+    fixtures = ['category_data.json']
+
+    def test_order_summary_use_correct_template(self):
+        response = self.client.get(reverse("order_summary"))
+
+        self.assertTemplateUsed(response, "order_summary.html")
+
+    def test_order_summary_has_required_fields(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.get(reverse("order_summary"))
+
+        context = response.context
+
+        shopping_cart = context['shopping_cart']
+        cart_items = shopping_cart.cart_items.all()
+        self.assertGreaterEqual(len(cart_items), 1)
+        for item in cart_items:
+            item.quantity
+            self.assertIsInstance(item.product, Product)
+
+
 class CategoryModelTest(TestCase):
 
     def test_model_return_category(self):

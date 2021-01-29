@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block body %}
+<table id="order_summary_table">
+    <tr>
+        <th>Product description</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+    </tr>
+    {% for item in shopping_cart.cart_items.all %}
+    <tr>
+        <td>
+            <input name="product_description" type="text" value="{{ item.product.description }}"/>
+            <input name="item" hidden value={{ item.product.SKU }}>
+        </td>
+        <td>
+            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.quantity }}>
+        </td>
+        <td>
+            <input id="price" type="text" value="{{ item.product.price }}"/>
+        </td>
+        <td>
+            <input id="total" type="text" value="{{ item.product.price }}"/>
+        </td>
+    </tr>
+    {% endfor %}
+    <button id="update" disabled="true">Update</button>
+</table>
+<button id="purchase">Purchase</button>
+<input type=text id="totalAmount"/>
+{% endblock %}

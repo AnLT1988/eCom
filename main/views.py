@@ -70,3 +70,12 @@ def update_cart(request):
     messages.add_message(request, messages.SUCCESS, "update successfully")
 
     return redirect(reverse("shopping_cart"))
+
+def display_order_summary(request):
+    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
+    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+
+    if created:
+        # If new cart is created, store in session
+        request.session[CART_ID_SESSION_KEY] = cart.id
+    return render(request, "order_summary.html", {'shopping_cart': cart})

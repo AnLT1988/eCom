@@ -20,6 +20,7 @@
 </table>
 {% csrf_token %}
 </form>
+<button id="order" onclick="window.location.href={% url 'order_summary' %}">Order</button>
 {% endblock %}
 {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
