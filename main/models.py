@@ -33,8 +33,16 @@ class ShoppingCart(models.Model):
 
         return self
 
+    @property
+    def total_amount(self):
+        return sum(item.total for item in self.cart_items.all())
+
 
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, unique=False, default=None, blank=False)
     quantity = models.PositiveSmallIntegerField(default=1)
     cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE, related_name="cart_items", default=None)
+
+    @property
+    def total(self):
+        return self.quantity * self.product.price

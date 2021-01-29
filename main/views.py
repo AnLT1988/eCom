@@ -79,3 +79,9 @@ def display_order_summary(request):
         # If new cart is created, store in session
         request.session[CART_ID_SESSION_KEY] = cart.id
     return render(request, "order_summary.html", {'shopping_cart': cart})
+
+def display_order_confirmation(request):
+    return render(request, "order_confirmation.html")
+
+def place_order(request):
+    return redirect(reverse("order_confirmation"))

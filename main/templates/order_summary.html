@@ -20,12 +20,12 @@
             <input id="price" type="text" value="{{ item.product.price }}"/>
         </td>
         <td>
-            <input id="total" type="text" value="{{ item.product.price }}"/>
+            <input id="total" type="text" value="{{ item.total }}"/>
         </td>
     </tr>
     {% endfor %}
     <button id="update" disabled="true">Update</button>
 </table>
-<button id="purchase">Purchase</button>
-<input type=text id="totalAmount"/>
+<button id="purchase" onclick=window.location.href="{% url 'place_order' %}">Purchase</button>
+<input type=text id="totalAmount" value="{{ shopping_cart.total_amount }}"/>
 {% endblock %}

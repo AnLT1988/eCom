@@ -207,6 +207,25 @@ class OrderSummaryViewTest(TestCase):
             item.quantity
             self.assertIsInstance(item.product, Product)
 
+    def test_order_summary_has_link_to_purchase(self):
+        response = self.client.get(reverse("order_summary"))
+
+        link_to_purchase = reverse("place_order")
+        self.assertContains(response, link_to_purchase)
+
+    def test_can_place_order(self):
+        response = self.client.post(reverse("place_order"))
+
+        self.assertRedirects(response, reverse("order_confirmation"))
+
+
+class OrderConfirmationViewTest(TestCase):
+
+    def test_order_confirmation_test_use_correct_template(self):
+        response = self.client.get(reverse("order_confirmation"))
+
+        self.assertTemplateUsed(response, "order_confirmation.html")
+
 
 class CategoryModelTest(TestCase):
 
@@ -301,6 +320,42 @@ class ShoppingCartModelTest(TestCase):
         products = [cart_item.product for cart_item in cart_items]
         self.assertIn(product, products)
 
+    def test_shopping_cart_has_total(self):
+        category_spec = {
+            'id': '99999',
+            'name': 'Test category',
+        }
+        category = Category.objects.create(**category_spec)
+
+        product_1_price = 10000
+        product_2_price = 5000
+        product_spec = {
+            "description": "This is a test product",
+            "price": product_1_price,
+            "img_src": "img_src",
+            "SKU": "T1",
+            "category": category
+        }
+
+        product_spec_2 = {
+            "description": "This is a test product",
+            "price": product_2_price,
+            "img_src": "img_src",
+            "SKU": "T2",
+            "category": category
+        }
+
+        product = Product.objects.create(**product_spec)
+        product_2 = Product.objects.create(**product_spec_2)
+        cart = ShoppingCart.objects.create()
+        cart = cart.add_or_update(product)
+        cart = cart.add_or_update(product_2)
+        cart.save()
+
+        expected_cart_total = product_1_price*1 + product_2_price*1
+
+        self.assertEqual(expected_cart_total, cart.total_amount)
+
 
 class CartItemModelTest(TestCase):
 
@@ -332,7 +387,16 @@ class CartItemModelTest(TestCase):
         cart_item.cart = cart
         cart_item.save()
 
-        saved_cart_item = CartItem.objects.first()
+        saved_cart_item = CartItem.objects.last()
         self.assertEqual(cart_item, saved_cart_item)
         self.assertTrue(cart_item.product.description, product.description)
         self.assertEqual(cart_item.quantity, 1)
+
+    def test_cart_items_can_calculate_total(self):
+        cart_item = CartItem.objects.get(pk=1)
+
+        price = cart_item.product.price
+        quantity = cart_item.quantity
+        expected_total = price * quantity
+
+        self.assertEqual(expected_total, cart_item.total)

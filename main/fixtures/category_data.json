@@ -27,7 +27,8 @@
             "category": 1,
             "SKU": "1234",
             "description": "This is a canned food",
-            "img_src": "http://placekitten.com/g/200/200"
+            "img_src": "http://placekitten.com/g/200/200",
+            "price": 10000
         }
     },
     {
@@ -37,13 +38,23 @@
             "category": 1,
             "SKU": "1235",
             "description": "This is a second canned food",
-            "img_src": "http://placekitten.com/g/200/200"
+            "img_src": "http://placekitten.com/g/200/200",
+            "price": 10000
         }
     },
     {
         "model": "main.shoppingcart",
         "pk": 1,
         "fields": {
+        }
+    },
+    {
+        "model": "main.cartitem",
+        "pk": 1,
+        "fields": {
+            "product": 1,
+            "quantity": 2,
+            "cart": 1
         }
     }
 ]
