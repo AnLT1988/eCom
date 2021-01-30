@@ -10,7 +10,7 @@
     {% for item in shopping_cart.cart_items.all %}
     <tr>
         <td>
-            <input name="product_description" type="text" value="{{ item.product.description }}"/>
+            <input id="product_description" name="product_description" type="text" value="{{ item.product.description }}"/>
             <input name="item" hidden value={{ item.product.SKU }}>
         </td>
         <td>
