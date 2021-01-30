@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse
 from django.contrib import messages
-from main.models import Category, Product, ShoppingCart
+from main.models import Category, Product, ShoppingCart, Order
 from django.db import models
 
 CART_ID_SESSION_KEY = 'cart_id'
@@ -81,7 +81,7 @@ def display_order_summary(request):
     return render(request, "order_summary.html", {'shopping_cart': cart})
 
 def display_order_confirmation(request):
-    return render(request, "order_confirmation.html")
+    return render(request, "order_confirmation.html", {'order': Order.objects.create()})
 
 def place_order(request):
     return redirect(reverse("order_confirmation"))

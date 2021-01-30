@@ -46,3 +46,7 @@ class CartItem(models.Model):
     @property
     def total(self):
         return self.quantity * self.product.price
+
+
+class Order(models.Model):
+    pass

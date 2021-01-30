@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from main.views import home_page, CART_ID_SESSION_KEY
-from main.models import Category, Product, ShoppingCart, CartItem
+from main.models import Category, Product, ShoppingCart, CartItem, Order
 from unittest import skip
 
 # Create your tests here.
@@ -226,6 +226,14 @@ class OrderConfirmationViewTest(TestCase):
 
         self.assertTemplateUsed(response, "order_confirmation.html")
 
+    def test_order_confirmation_has_sufficient_data(self):
+        response = self.client.get(reverse("order_confirmation"))
+        context = response.context
+
+        order = context['order']
+
+        self.assertIsInstance(order, Order)
+
 
 class CategoryModelTest(TestCase):
 
@@ -400,3 +408,9 @@ class CartItemModelTest(TestCase):
         expected_total = price * quantity
 
         self.assertEqual(expected_total, cart_item.total)
+
+
+class OrderModelTest(TestCase):
+
+    def test_order_model_has_required_fields(self):
+        order = Order.objects.create()
