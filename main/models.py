@@ -21,33 +21,6 @@ class Product(models.Model):
     price = models.BigIntegerField(default=0)
 
 
-class ShoppingCart(models.Model):
-
-    def add_or_update(self, product):
-        for cart_item in self.cart_items.all():
-            if product == cart_item.product:
-                cart_item.quantity += 1
-                break
-        else:
-            new_cart_item = CartItem.objects.create(product=product, cart=self)
-
-        return self
-
-    @property
-    def total_amount(self):
-        return sum(item.total for item in self.cart_items.all())
-
-
-class CartItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, unique=False, default=None, blank=False)
-    quantity = models.PositiveSmallIntegerField(default=1)
-    cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE, related_name="cart_items", default=None)
-
-    @property
-    def total(self):
-        return self.quantity * self.product.price
-
-
 class Item(models.Model):
     _product = models.ForeignKey(Product, on_delete=models.CASCADE)
     qty = models.PositiveIntegerField()
@@ -71,8 +44,28 @@ class Item(models.Model):
     def __setattr__(self, attr_name, value):
         super().__setattr__(attr_name, value)
         if attr_name == "_product":
-            print("################", value.price)
             self.price = value.price
+
+
+class ShoppingCart(models.Model):
+    items = models.ManyToManyField(Item, related_name="+")
+
+    def add_or_update(self, product):
+        for item in self.items.all():
+            if product == item.product:
+                item.qty += 1
+                break
+        else:
+            new_item = Item.objects.create(product=product, qty=1)
+            self.items.add(new_item)
+            self.save()
+
+        return self
+
+    @property
+    def total_amount(self):
+        return sum(item.total_amount for item in self.items.all())
+
 
 class Order(models.Model):
     items = models.ManyToManyField(Item, related_name="+")

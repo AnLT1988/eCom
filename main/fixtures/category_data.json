@@ -47,14 +47,5 @@
         "pk": 1,
         "fields": {
         }
-    },
-    {
-        "model": "main.cartitem",
-        "pk": 1,
-        "fields": {
-            "product": 1,
-            "quantity": 2,
-            "cart": 1
-        }
     }
 ]

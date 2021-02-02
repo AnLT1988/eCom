@@ -63,9 +63,9 @@ def update_cart(request):
     data = [{'sku': x, 'quantity': y} for x, y in zip(sku, quantity)]
 
     for d in data:
-        cart_item = cart.cart_items.get(product__SKU=d['sku'])
-        cart_item.quantity = d['quantity']
-        cart_item.save()
+        item = cart.items.get(_product__SKU=d['sku'])
+        item.qty = d['quantity']
+        item.save()
 
     messages.add_message(request, messages.SUCCESS, "update successfully")
 
