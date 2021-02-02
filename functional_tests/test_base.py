@@ -285,7 +285,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         purchase_button.click()
 
         # A congratulation message was showed and her Order Id was printed on the screen
-        self.assertIn("your order is successfully created", self.browser.page_source)
+        self.assertRegexpMatches(self.browser.page_source, r"your order is successfully created #\d{9}")
         self.fail("Finish the functional test")
 
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load main_extra %}
 {% block body %}
-<p>your order is successfully created</p>
+<p>your order is successfully created #{{ order.id | pad:9 }}</p>
 {% endblock %}

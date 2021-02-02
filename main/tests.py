@@ -7,6 +7,8 @@ from main.models import Category, Product, ShoppingCart, Order, Item
 from unittest import skip
 from model_bakery import baker
 
+import main.baker_recipes as tc
+
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -375,7 +377,7 @@ class OrderModelTest(TestCase):
         order = Order.objects.create()
         order.items.add(item)
 
-        required_fields = ["total_amount"]
+        required_fields = ["total_amount", "id"]
 
         for field in required_fields:
             self.assertTrue(hasattr(order, field), f"order instance needs to have attribute {field}")
@@ -412,16 +414,9 @@ class ItemModelTest(TestCase):
             self.assertTrue(hasattr(item, field), f"item object needs to have attribute {field}")
 
     def test_item_model_can_calculate_total_amount(self):
-        product = Product.objects.first()
-        product.price = 10000
-        product.save()
-        item_spec = {
-            "product": product,
-            "qty": 2,
-        }
-        item = Item.objects.create(**item_spec)
+        item = baker.make_recipe('main.tc_01_item')
 
-        self.assertEqual(item.total_amount, 20000)
+        self.assertEqual(item.total_amount, tc.tc_01_expected_result)
 
     def test_item_model_can_calculate_total_amount_2(self):
         product = Product.objects.first()

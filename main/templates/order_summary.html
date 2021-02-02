@@ -7,20 +7,20 @@
         <th>Price</th>
         <th>Total</th>
     </tr>
-    {% for item in shopping_cart.cart_items.all %}
+    {% for item in shopping_cart.items.all %}
     <tr>
         <td>
             <input id="product_description" name="product_description" type="text" value="{{ item.product.description }}"/>
             <input name="item" hidden value={{ item.product.SKU }}>
         </td>
         <td>
-            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.quantity }}>
+            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.qty }}>
         </td>
         <td>
             <input id="price" type="text" value="{{ item.product.price }}"/>
         </td>
         <td>
-            <input id="total" type="text" value="{{ item.total }}"/>
+            <input id="total" type="text" value="{{ item.total_amount }}"/>
         </td>
     </tr>
     {% endfor %}

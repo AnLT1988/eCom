@@ -3,7 +3,7 @@
 {% block body %}
 <form method="POST" action={% url "update_cart" %}>
 <table id="cart_item_table">
-    {% for item in cart_items.cart_items.all %}
+    {% for item in cart_items.items.all %}
     <tr>
         <td>
             <input id="product-{{ forloop.counter }}-description" name="product_description" type="text" value="{{ item.product.description }}"/>
@@ -11,7 +11,7 @@
         </td>
         <td>
             <input type=button id="increase" onclick="incrCartItem('quantity')" value=Increase>
-            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.quantity }}>
+            <input id="quantity" name="quantity" type=text style="border: none; outline: none" value={{ item.qty }}>
             <input type=button id="decrease" onclick="decrCartItem('quantity')" value=Descrease>
         </td>
     </tr>
