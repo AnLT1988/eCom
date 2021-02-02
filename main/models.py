@@ -48,5 +48,35 @@ class CartItem(models.Model):
         return self.quantity * self.product.price
 
 
+class Item(models.Model):
+    _product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    qty = models.PositiveIntegerField()
+    price = models.PositiveSmallIntegerField(default=0)
+    list_price = models.PositiveIntegerField(default=0)
+
+    @property
+    def total_amount(self):
+        return self.price * self.qty
+
+    @property
+    def product(self):
+        return self._product
+
+    @product.setter
+    def product(self, product):
+        if isinstance(product, Product):
+            self._product = product
+            self.price = product.price
+
+    def __setattr__(self, attr_name, value):
+        super().__setattr__(attr_name, value)
+        if attr_name == "_product":
+            print("################", value.price)
+            self.price = value.price
+
 class Order(models.Model):
-    pass
+    items = models.ManyToManyField(Item, related_name="+")
+
+    @property
+    def total_amount(self):
+        return sum(item.total_amount for item in self.items.all())

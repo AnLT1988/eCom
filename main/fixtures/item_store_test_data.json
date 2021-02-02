@@ -1,0 +1,69 @@
+[
+    {
+        "model": "main.category",
+        "pk": 1,
+        "fields": {
+            "name": "Food"
+        }
+    },
+    {
+        "model": "main.category",
+        "pk": 2,
+        "fields": {
+            "name": "Household"
+        }
+    },
+    {
+        "model": "main.category",
+        "pk": 3,
+        "fields": {
+            "name": "Computer"
+        }
+    },
+    {
+        "model": "main.product",
+        "pk": 1,
+        "fields": {
+            "category": 1,
+            "SKU": "1234",
+            "description": "This is a canned food",
+            "img_src": "http://placekitten.com/g/200/200",
+            "price": 10000
+        }
+    },
+    {
+        "model": "main.product",
+        "pk": 2,
+        "fields": {
+            "category": 1,
+            "SKU": "1235",
+            "description": "This is a second canned food",
+            "img_src": "http://placekitten.com/g/200/200",
+            "price": 20000
+        }
+    },
+    {
+        "model": "main.shoppingcart",
+        "pk": 1,
+        "fields": {
+        }
+    },
+    {
+        "model": "main.cartitem",
+        "pk": 1,
+        "fields": {
+            "product": 1,
+            "quantity": 2,
+            "cart": 1
+        }
+    },
+    {
+        "model": "main.item",
+        "pk": 1,
+        "fields": {
+            "_product": 1,
+            "price": 10000,
+            "qty": 2
+        }
+    }
+]

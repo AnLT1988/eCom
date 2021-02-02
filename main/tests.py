@@ -3,8 +3,10 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from main.views import home_page, CART_ID_SESSION_KEY
-from main.models import Category, Product, ShoppingCart, CartItem, Order
+from main.models import Category, Product, ShoppingCart, CartItem, Order, Item
 from unittest import skip
+from model_bakery import baker
+
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -412,5 +414,69 @@ class CartItemModelTest(TestCase):
 
 class OrderModelTest(TestCase):
 
+    fixtures = ['item_store_test_data.json']
+
     def test_order_model_has_required_fields(self):
+        item = Item.objects.first()
         order = Order.objects.create()
+        order.items.add(item)
+
+        required_fields = ["total_amount"]
+
+        for field in required_fields:
+            self.assertTrue(hasattr(order, field), f"order instance needs to have attribute {field}")
+
+    def test_order_model_can_calculate_total_amount(self):
+        items = Item.objects.all()
+        order = Order.objects.create()
+        order.items.add(*items)
+        order.save()
+
+        self.assertEqual(order.total_amount, 20000)
+
+
+class ItemModelTest(TestCase):
+
+    fixtures = ['item_store_test_data.json']
+
+    def test_item_model_has_required_fields(self):
+        item = Item()
+
+        self.assertRaises(IntegrityError, item.save)
+
+    def test_item_model_has_required_fields_2(self):
+        product = Product.objects.first()
+        item_spec = {
+            "product": product,
+            "qty": 1,
+        }
+        item = Item.objects.create(**item_spec)
+
+        required_fields = ["qty", 'price', 'list_price', "total_amount"]
+
+        for field in required_fields:
+            self.assertTrue(hasattr(item, field), f"item object needs to have attribute {field}")
+
+    def test_item_model_can_calculate_total_amount(self):
+        product = Product.objects.first()
+        product.price = 10000
+        product.save()
+        item_spec = {
+            "product": product,
+            "qty": 2,
+        }
+        item = Item.objects.create(**item_spec)
+
+        self.assertEqual(item.total_amount, 20000)
+
+    def test_item_model_can_calculate_total_amount_2(self):
+        product = Product.objects.first()
+        product.price = 20000
+        product.save()
+        item_spec = {
+            "product": product,
+            "qty": 4,
+        }
+        item = Item.objects.create(**item_spec)
+
+        self.assertEqual(item.total_amount, 80000)
