@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.contrib import messages
 from main.models import Category, Product, ShoppingCart, Order
 from django.db import models
@@ -39,7 +39,7 @@ def add_to_cart(request, category, sku):
     cart = cart.add_or_update(product)
 
     messages.add_message(request, messages.SUCCESS, "Add item to cart successfully")
-    return redirect(f"/{category}/{sku}/")
+    return redirect("product_detail_page", category=category, sku=sku)
 
 
 def display_cart(request):
@@ -69,7 +69,7 @@ def update_cart(request):
 
     messages.add_message(request, messages.SUCCESS, "update successfully")
 
-    return redirect(reverse("shopping_cart"))
+    return redirect("shopping_cart")
 
 def display_order_summary(request):
     cart_id = request.session.get(CART_ID_SESSION_KEY, None)
@@ -80,8 +80,22 @@ def display_order_summary(request):
         request.session[CART_ID_SESSION_KEY] = cart.id
     return render(request, "order_summary.html", {'shopping_cart': cart})
 
-def display_order_confirmation(request):
-    return render(request, "order_confirmation.html", {'order': Order.objects.create()})
+def display_order_confirmation(request, order_id):
+    return render(request, "order_confirmation.html", {'order': Order.objects.get(pk=order_id)})
 
 def place_order(request):
-    return redirect(reverse("order_confirmation"))
+    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
+    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+
+    if created:
+        # If new cart is created, store in session
+        request.session[CART_ID_SESSION_KEY] = cart.id
+
+    if len(cart.items.all()) == 0:
+        return HttpResponseServerError()
+
+    order = Order.objects.create()
+    order.items.set(cart.items.all())
+    order.save()
+
+    return redirect("order_confirmation", order_id=order.id)

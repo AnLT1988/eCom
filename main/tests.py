@@ -217,21 +217,85 @@ class OrderSummaryViewTest(TestCase):
         link_to_purchase = reverse("place_order")
         self.assertContains(response, link_to_purchase)
 
+    def test_cannot_place_order_if_cart_is_empty(self):
+        response = self.client.post(reverse("place_order"))
+
+        self.assertEqual(response.status_code, 500)
+
     def test_can_place_order(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
         response = self.client.post(reverse("place_order"))
 
         self.assertRedirects(response, reverse("order_confirmation"))
 
+    def test_place_order_create_new_order(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        existing_orders_count = len(Order.objects.all())
+        response = self.client.post(reverse("place_order"))
+        new_orders_count = len(Order.objects.all())
+
+        self.assertGreater(new_orders_count, existing_orders_count)
+
+    def test_can_place_order(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.post(reverse("place_order"))
+        orders = Order.objects.filter(items___product__SKU=sku)
+        response = self.client.get(response['Location'])
+        context = response.context
+        order = context['order']
+
+        self.assertIn(order, orders)
+
+    def test_can_place_order_2(self):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.post(reverse("place_order"))
+        orders = Order.objects.filter(items___product__SKU=sku)
+        response = self.client.get(response['Location'])
+        context = response.context
+        order = context['order']
+
+        self.assertIn(order, orders)
+
+        sku = '1235'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+
+        response = self.client.post(reverse("place_order"))
+        orders = Order.objects.filter(items___product__SKU=sku)
+        response = self.client.get(response['Location'])
+        context = response.context
+        order = context['order']
+
+        self.assertIn(order, orders)
 
 class OrderConfirmationViewTest(TestCase):
 
     def test_order_confirmation_test_use_correct_template(self):
-        response = self.client.get(reverse("order_confirmation"))
+        order = baker.make_recipe("main.tc_02_order")
+        response = self.client.get(reverse("order_confirmation", kwargs={"order_id": order.id}))
 
         self.assertTemplateUsed(response, "order_confirmation.html")
 
     def test_order_confirmation_has_sufficient_data(self):
-        response = self.client.get(reverse("order_confirmation"))
+        order = baker.make_recipe("main.tc_02_order")
+        response = self.client.get(reverse("order_confirmation", kwargs={"order_id": order.id}))
         context = response.context
 
         order = context['order']

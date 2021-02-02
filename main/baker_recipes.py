@@ -1,5 +1,5 @@
 from model_bakery.recipe import Recipe, foreign_key
-from main.models import Product, Item
+from main.models import Product, Item, Order
 
 tc_01_product = Recipe(Product, _fill_optional=True)
 tc_01_item = Recipe(
@@ -8,3 +8,5 @@ tc_01_item = Recipe(
         qty=2,
         price=10000)
 tc_01_expected_result = 20000
+
+tc_02_order = Recipe(Order, _fill_optional=True)
