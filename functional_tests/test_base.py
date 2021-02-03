@@ -1,4 +1,5 @@
 from django.test import LiveServerTestCase
+from django.core import mail
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -286,6 +287,11 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # A congratulation message was showed and her Order Id was printed on the screen
         self.assertRegexpMatches(self.browser.page_source, r"your order is successfully created #\d{9}")
+        email = mail.outbox[0]
+        TEST_EMAIL = "mail@mail.com"
+        self.assertIn(TEST_EMAIL, email.to)
+        self.assertRegex(email.body, r".*#\d{9}")
+
         self.fail("Finish the functional test")
 
 

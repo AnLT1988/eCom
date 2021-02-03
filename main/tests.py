@@ -5,6 +5,7 @@ from django.db.utils import IntegrityError
 from main.views import home_page, CART_ID_SESSION_KEY
 from main.models import Category, Product, ShoppingCart, Order, Item
 from unittest import skip
+from unittest.mock import patch
 from model_bakery import baker
 
 import main.baker_recipes as tc
@@ -287,6 +288,8 @@ class OrderSummaryViewTest(TestCase):
 
 class OrderConfirmationViewTest(TestCase):
 
+    fixtures = ['category_data.json']
+
     def test_order_confirmation_test_use_correct_template(self):
         order = baker.make_recipe("main.tc_02_order")
         response = self.client.get(reverse("order_confirmation", kwargs={"order_id": order.id}))
@@ -301,6 +304,20 @@ class OrderConfirmationViewTest(TestCase):
         order = context['order']
 
         self.assertIsInstance(order, Order)
+
+    @patch("main.views.send_mail")
+    def test_order_confirmation_send_email(self, mock_send_mail):
+        sku = '1234'
+        new_quantity = 2
+        self.client.post(f"/Food/{sku}/addToCart")
+        item = Product.objects.get(SKU=sku)
+        response = self.client.post(reverse("place_order"), follow=True)
+
+        order = response.context['order']
+        self.assertTrue(mock_send_mail.called)
+        args, kwargs  = mock_send_mail.call_args
+        subject, message, from_email, recipient_list = kwargs.values()
+        self.assertRegex(message, rf".*#{str(order.id).zfill(9)}")
 
 
 class CategoryModelTest(TestCase):

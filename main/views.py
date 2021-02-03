@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseServerError
 from django.contrib import messages
+from django.core.mail import send_mail
 from main.models import Category, Product, ShoppingCart, Order
 from django.db import models
 
@@ -78,6 +79,7 @@ def display_order_summary(request):
     if created:
         # If new cart is created, store in session
         request.session[CART_ID_SESSION_KEY] = cart.id
+
     return render(request, "order_summary.html", {'shopping_cart': cart})
 
 def display_order_confirmation(request, order_id):
@@ -97,5 +99,13 @@ def place_order(request):
     order = Order.objects.create()
     order.items.set(cart.items.all())
     order.save()
+
+    message = "#" + str(order.id).zfill(9)
+    send_mail(
+        subject="Subject",
+        message=message,
+        from_email="noreply@ecom.com",
+        recipient_list=["mail@mail.com"]
+    )
 
     return redirect("order_confirmation", order_id=order.id)
