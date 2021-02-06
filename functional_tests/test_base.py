@@ -10,7 +10,8 @@ import unittest
 
 
 # Look for 0 or 0.000 or \d\d.000. End with 3 character for currency, e.g. vnd usd
-PRICE_REGEX = r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}"
+REGEX_PRODUCT_PRICE = r"(\d{1,3}([\.|,]\d{3})*[\.|,]000|0)\s*\w{3}"
+REGEX_ORDER_CONFIRMATION_CONTENT = r"your order is successfully created #\d{9}"
 XPATH_CATEGORY_LIST = "//*[contains(@id, 'product_category')]"
 XPATH_ITEM_CONTAINER = "//*[contains(@id, 'item_container')]"
 XPATH_PRODUCT_IMAGE = "//a[@href]//img[@src]"
@@ -53,11 +54,14 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         self.assertEqual(current_quantity + 1, int(new_quantity))
 
+    def verify_order_confirmation_email(self):
+        email = mail.outbox[0]
+        TEST_EMAIL = "mail@mail.com"
+        self.assertIn(TEST_EMAIL, email.to)
+        self.assertRegex(email.body, r".*#\d{9}")
+
     def verify_order_summary_shows_sufficient_item(self):
         items_in_table = self.get_table_rows("order_summary_table")
-
-        # Exactly 2 items that were added
-        self.assertEqual(len(items_in_table), 2)
 
         for item in items_in_table:
             if len(item.find_elements_by_xpath(".//th")) > 0:
@@ -94,14 +98,19 @@ class NewVisitorTest(StaticLiveServerTestCase):
         if isinstance(data, str):
             data = [data]
 
+        items_in_table = self.get_table_rows(table_id)
+
+        # Exactly 2 items that were added
+        self.assertEqual(len(items_in_table), len(data))
+
         table_data = self.get_items_data_from_table_by_id(table_id)
         for d in data:
-            self.assertTrue(any("a second canned food" in item['description'] for item in table_data))
+            self.assertTrue(any(d in item['description'] for item in table_data))
 
 
     def get_table_rows(self, table_id):
         table = self.browser.find_element_by_id(table_id)
-        item_rows = table.find_elements_by_tag_name("tr")
+        item_rows = table.find_elements_by_xpath(".//tr/td/parent::tr")
 
         return item_rows
 
@@ -140,7 +149,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
             self.assertIn("food", item.get_attribute("innerHTML"))
 
             # and its price
-            self.assertRegex(item.get_attribute("innerHTML"), PRICE_REGEX)
+            self.assertRegex(item.get_attribute("innerHTML"), REGEX_PRODUCT_PRICE)
 
         # Selenie click on a food
         self.browser.find_element_by_xpath(XPATH_PRODUCT_IMAGE).click()
@@ -162,7 +171,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertIn("food", item_container.get_attribute("innerHTML"))
 
         # and price
-        self.assertRegex(item_container.get_attribute("innerHTML"), PRICE_REGEX)
+        self.assertRegex(item_container.get_attribute("innerHTML"), REGEX_PRODUCT_PRICE)
 
         # Selenie also sees a button to buy the food with the text "Buy now"
         add_to_cart_button = self.find_add_to_cart_button()
@@ -183,9 +192,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # On the top of the page, she finds a link to get her to the shopping cart
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
         self.navigate_to_shopping_cart()
-        shopping_cart_data = self.get_items_data_from_table_by_id("cart_item_table")
-
-        self.assertTrue(any("a canned food" in item['description'] for item in shopping_cart_data))
+        expected_data = ["a canned food"]
+        self.verify_data_present_in_order_or_cart_table(expected_data, "cart_item_table")
 
         # However, just a piece of food is not enough for the dinner
         # Selenie decide to go back to the store to buy more items
@@ -201,10 +209,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # Openning the shopping cart, Selenie is relieved to see the food she bought was there
         self.navigate_to_shopping_cart()
-        items_in_table = self.get_table_rows("cart_item_table")
-
-        # Exactly 2 items that were added
-        self.assertEqual(len(items_in_table), 2)
 
         expected_data = ["a canned food", "a second canned food"]
         self.verify_data_present_in_order_or_cart_table(expected_data, "cart_item_table")
@@ -253,17 +257,12 @@ class NewVisitorTest(StaticLiveServerTestCase):
         message_box = self.browser.find_element_by_id("message_box")
         self.assertIn(expected_message, self.browser.page_source)
 
-        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
-        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
-
         item_data = self.get_items_data_from_table_by_id("cart_item_table")
         # doesn't believe, she navigate to homepage then comeback to see if her items is actually updated
         self.browser.get(self.live_server_url)
         self.navigate_to_shopping_cart()
 
         # when she opens the shopping cart again, the quantity of the item was indeed updated.
-        item_in_cart_table = self.browser.find_element_by_id("cart_item_table")
-        items_in_table = item_in_cart_table.find_elements_by_tag_name("tr")
         current_item_data = self.get_items_data_from_table_by_id("cart_item_table")
 
         self.assertListEqual(item_data, current_item_data)
@@ -286,11 +285,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         purchase_button.click()
 
         # A congratulation message was showed and her Order Id was printed on the screen
-        self.assertRegexpMatches(self.browser.page_source, r"your order is successfully created #\d{9}")
-        email = mail.outbox[0]
-        TEST_EMAIL = "mail@mail.com"
-        self.assertIn(TEST_EMAIL, email.to)
-        self.assertRegex(email.body, r".*#\d{9}")
+        self.assertRegexpMatches(self.browser.page_source, REGEX_ORDER_CONFIRMATION_CONTENT)
+        self.verify_order_confirmation_email()
 
         self.fail("Finish the functional test")
 
