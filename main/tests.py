@@ -320,6 +320,22 @@ class OrderConfirmationViewTest(TestCase):
         self.assertRegex(message, rf".*#{str(order.id).zfill(9)}")
 
 
+class LoginViewTest(TestCase):
+
+    def test_login_view_use_correct_template(self):
+        response = self.client.get(reverse("login"))
+
+        self.assertTemplateUsed(response, "login.html")
+
+
+class RegistrationViewTest(TestCase):
+
+    def test_registration_view_uses_correct_template(self):
+        response = self.client.get(reverse("register"))
+
+        self.assertTemplateUsed(response, "registration.html")
+
+
 class CategoryModelTest(TestCase):
 
     def test_model_return_category(self):

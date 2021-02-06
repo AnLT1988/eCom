@@ -85,6 +85,12 @@ def display_order_summary(request):
 def display_order_confirmation(request, order_id):
     return render(request, "order_confirmation.html", {'order': Order.objects.get(pk=order_id)})
 
+def login_view(request):
+    return render(request, "login.html")
+
+def registration_view(request):
+    return render(request, "registration.html")
+
 def place_order(request):
     cart_id = request.session.get(CART_ID_SESSION_KEY, None)
     cart, created = ShoppingCart.objects.get_or_create(id=cart_id)

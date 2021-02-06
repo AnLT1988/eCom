@@ -114,6 +114,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         return item_rows
 
+    @unittest.skip("Skip for now")
     def test_shoper_can_place_an_order(self):
         # Selenie knows about out new eCommerce site
         # so she visits the site
@@ -288,7 +289,52 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertRegexpMatches(self.browser.page_source, REGEX_ORDER_CONFIRMATION_CONTENT)
         self.verify_order_confirmation_email()
 
-        self.fail("Finish the functional test")
+    def test_user_can_register(self):
+        # Thomas comes to eCom for the first time, looking for a particular items.
+        # However, since Thomas understand that he must be a registered customer to purchase anything
+        # He looks for a normal place for user login/register: on the top of the page
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text("Login").click()
+
+        # He found a login link which leads him to the login page
+        self.browser.find_element_by_xpath("//input[contains(@id, 'email')]")
+        self.browser.find_element_by_xpath("//input[contains(@id, 'password')]")
+
+        # He doesn't have an account yet, luckily he also found a register link there and clicked on it
+        self.browser.find_element_by_link_text("Register").click()
+
+        # A registration form was displayed with minimal required info
+        # an email/password and that's it
+        self.assertIn("User registration", self.browser.page_source)
+        email_input = self.browser.find_element_by_xpath("//input[contains(@id, 'email')]")
+        password_input = self.browser.find_element_by_xpath("//input[contains(@id, 'password')]")
+
+        # Thomas input his email address and his password
+        email_input.send_keys("test@email.com")
+        password_input.send_keys("password")
+
+        # Then he clicks Register
+        register_button = self.browser.find_element_by_xpath("//input[contains(@id, 'register')]")
+        register_button.click()
+
+        # He was prompted that his account is created but need to be activated. An activation email has been
+        # sent to his mail box
+
+        # Checking the mail box, he found the email with the link.
+        # visiting the link, he was pleased to know that his account is activated successfully
+        # He can also find a link to go back to the login screen
+
+        # Once he arrives at the login screen, he input his email and password
+
+        # click on login
+        # he was redirected to the main page of eCom. This time, he can find a short message on the top of the site
+        # with a short welcome message and a logout button.
+
+        # Thomas try to logout
+
+        # He was redirected to the login screen again
+
+        self.fail("Finish the user registration test")
 
 
 if __name__ == "__main__":
