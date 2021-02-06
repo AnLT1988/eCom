@@ -331,9 +331,22 @@ class LoginViewTest(TestCase):
 class RegistrationViewTest(TestCase):
 
     def test_registration_view_uses_correct_template(self):
-        response = self.client.get(reverse("register"))
+        response = self.client.get(reverse("register_view"))
 
         self.assertTemplateUsed(response, "registration.html")
+
+    def test_registration_success_view_uses_correct_template(self):
+        response = self.client.get(
+                reverse("registration_success"),
+                {'email': 'test@email.com'})
+
+        self.assertTemplateUsed(response, "registration_success.html")
+
+    def test_email_sent_upon_registration(self):
+        response = self.client.post(reverse("register"),
+                data={'email': 'test@email.com'}, follow=True)
+
+        self.assertTemplateUsed(response, "registration_success.html")
 
 
 class CategoryModelTest(TestCase):

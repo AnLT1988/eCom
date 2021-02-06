@@ -319,8 +319,11 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # He was prompted that his account is created but need to be activated. An activation email has been
         # sent to his mail box
+        self.assertIn("email has been sent", self.browser.page_source)
 
         # Checking the mail box, he found the email with the link.
+        email = mail.outbox[0]
+        self.assertRegex(email.body, r'/register?token=')
         # visiting the link, he was pleased to know that his account is activated successfully
         # He can also find a link to go back to the login screen
 

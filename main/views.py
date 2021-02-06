@@ -91,6 +91,14 @@ def login_view(request):
 def registration_view(request):
     return render(request, "registration.html")
 
+def registration_success_view(request):
+    email = request.GET['email']
+    return render(request, "registration_success.html", {'email': email})
+
+def register_new_user(request):
+    email = request.POST['email']
+    return redirect(f"{reverse('registration_success')}?email={email}")
+
 def place_order(request):
     cart_id = request.session.get(CART_ID_SESSION_KEY, None)
     cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
