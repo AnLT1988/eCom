@@ -7,7 +7,12 @@
     <body>
         <div>
             <a href="/cart/">Shopping cart</a>
-            <a href="/login/">Login</a>
+            {% if user.is_authenticated %}
+                <p>Welcome, {{ user.username }}</p>
+                <a href="/logout/">Logout</a>
+            {% else %}
+                <a href="/login/">Login</a>
+            {% endif %}
         </div>
         <div id="message_box">
             {% for message in messages %}

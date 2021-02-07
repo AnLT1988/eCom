@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseServerError
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from main.models import Category, Product, ShoppingCart, Order, Token
@@ -87,6 +88,15 @@ def display_order_confirmation(request, order_id):
     return render(request, "order_confirmation.html", {'order': Order.objects.get(pk=order_id)})
 
 def login_view(request):
+    if request.method == "POST":
+        email, password, *kwargs = request.POST.values()
+        user = authenticate(request, username=email, password=password)
+        if user:
+            login(request, user)
+            return redirect(reverse("home_page"))
+        else:
+            return redirect(reverse("login"))
+
     token = request.GET.get("token")
     try:
         token = Token.objects.get(token=token)
@@ -99,6 +109,10 @@ def login_view(request):
         render(request, "user_activation_successfull.html", {'email': user.username})
 
     return render(request, "login.html")
+
+def logout_user(request):
+    logout(request)
+    return redirect("login")
 
 def registration_view(request):
     return render(request, "registration.html")

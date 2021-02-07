@@ -2,7 +2,7 @@ from django.urls import resolve, reverse
 from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from main.views import home_page, CART_ID_SESSION_KEY
 from main.models import Category, Product, ShoppingCart, Order, Item, Token
 from unittest import skip
@@ -411,6 +411,51 @@ class RegistrationViewTest(TestCase):
         user.refresh_from_db()
 
         self.assertTrue(user.is_active)
+
+    def test_user_can_login(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+        activation_link = reverse("login") + f"?token={token.token}"
+        self.client.get(activation_link)
+
+        response = self.client.post(reverse("login"), data={'email': email, 'password': password, 'other': 'other'}, follow=True)
+        context = response.context
+        user = context.get('user')
+        self.assertTrue(user.email, email)
+
+    def test_user_cannot_login_with_invalid_password(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+        activation_link = reverse("login") + f"?token={token.token}"
+        self.client.get(activation_link)
+
+        response = self.client.post(reverse("login"), data={'email': email, 'password': "invalid"}, follow=True)
+        context = response.context
+        user = context.get('user')
+        self.assertIsInstance(user, AnonymousUser)
+
+    def test_user_can_logout(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+        activation_link = reverse("login") + f"?token={token.token}"
+        self.client.get(activation_link)
+
+        response = self.client.post(reverse("login"), data={'email': email, 'password': "invalid"}, follow=True)
+        response = self.client.post(reverse("logout"))
+
+        self.assertRedirects(response, reverse("login"))
 
 
 class CategoryModelTest(TestCase):

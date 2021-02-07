@@ -26,6 +26,7 @@ urlpatterns = [
     path('order-summary/place-order', main_view.place_order, name="place_order"),
     path('order-summary/order-confirmation/<str:order_id>', main_view.display_order_confirmation, name="order_confirmation"),
     path('login/', main_view.login_view, name="login"),
+    path('logout/', main_view.logout_user, name="logout"),
     path('register/', main_view.registration_view, name="register_view"),
     path('register', main_view.register_new_user, name="register"),
     path('register-success/', main_view.registration_success_view, name="registration_success"),

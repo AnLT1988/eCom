@@ -7,6 +7,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import unittest
+import re
+import time
 
 
 # Look for 0 or 0.000 or \d\d.000. End with 3 character for currency, e.g. vnd usd
@@ -26,7 +28,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.firefox_options = Options()
-        self.firefox_options.add_argument("--headless")
+        #self.firefox_options.add_argument("--headless")
         self.browser = webdriver.Firefox(options=self.firefox_options)
         self.browser.implicitly_wait(2)
 
@@ -323,21 +325,35 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # Checking the mail box, he found the email with the link.
         email = mail.outbox[0]
-        self.assertRegex(email.body, r'.*/login/\?token=.*')
+        regex = r'.*(http://.*/login/\?token=\S{8}-\S{4}-\S{4}-\S{4}-\S{12}).*'
+        match = re.match(regex, email.body)
+        self.assertRegex(email.body, regex)
+        activation_link = match.group(1)
         # visiting the link, he was pleased to know that his account is activated successfully
         # He can also find a link to go back to the login screen
+        self.browser.get(activation_link)
+        self.browser.find_element_by_link_text("Login").click()
 
         # Once he arrives at the login screen, he input his email and password
+        email_input = self.browser.find_element_by_xpath("//input[contains(@id, 'email')]")
+        password_input = self.browser.find_element_by_xpath("//input[contains(@id, 'password')]")
+
+        # Thomas input his email address and his password
+        email_input.send_keys("test@email.com")
+        password_input.send_keys("password")
 
         # click on login
+        self.browser.find_element_by_xpath("//input[@type='submit' and @value='Login']").click()
         # he was redirected to the main page of eCom. This time, he can find a short message on the top of the site
         # with a short welcome message and a logout button.
+        self.assertIn("Welcome, test@email.com", self.browser.page_source)
+        logout_link = self.browser.find_element_by_link_text("Logout")
 
         # Thomas try to logout
+        logout_link.click()
 
         # He was redirected to the login screen again
-
-        self.fail("Finish the user registration test")
+        self.assertRegex(self.browser.current_url, r".*/login/.*")
 
 
 if __name__ == "__main__":
