@@ -323,7 +323,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # Checking the mail box, he found the email with the link.
         email = mail.outbox[0]
-        self.assertRegex(email.body, r'/register?token=')
+        self.assertRegex(email.body, r'.*/login/\?token=.*')
         # visiting the link, he was pleased to know that his account is activated successfully
         # He can also find a link to go back to the login screen
 

@@ -1,5 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 from jsonfield import JSONField
+import uuid
 
 # Create your models here.
 class Category(models.Model):
@@ -73,3 +75,8 @@ class Order(models.Model):
     @property
     def total_amount(self):
         return sum(item.total_amount for item in self.items.all())
+
+
+class Token(models.Model):
+    email = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.TextField(default=uuid.uuid4)

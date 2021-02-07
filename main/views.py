@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseServerError
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from main.models import Category, Product, ShoppingCart, Order
+from main.models import Category, Product, ShoppingCart, Order, Token
 from django.db import models
 
 CART_ID_SESSION_KEY = 'cart_id'
@@ -86,6 +87,17 @@ def display_order_confirmation(request, order_id):
     return render(request, "order_confirmation.html", {'order': Order.objects.get(pk=order_id)})
 
 def login_view(request):
+    token = request.GET.get("token")
+    try:
+        token = Token.objects.get(token=token)
+    except Token.DoesNotExist:
+        pass
+    else:
+        user = token.email
+        user.is_active = True
+        user.save()
+        render(request, "user_activation_successfull.html", {'email': user.username})
+
     return render(request, "login.html")
 
 def registration_view(request):
@@ -96,7 +108,19 @@ def registration_success_view(request):
     return render(request, "registration_success.html", {'email': email})
 
 def register_new_user(request):
-    email = request.POST['email']
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+
+    user = User.objects.create_user(username=email, email=email, password=password, is_active=False)
+    token = Token.objects.create(email=user)
+
+    message = request.build_absolute_uri(reverse("login") + f"?token={token.token}")
+    send_mail(
+        subject="Activate user",
+        message=message,
+        from_email="admin@ecom.com",
+        recipient_list=[user.email]
+    )
     return redirect(f"{reverse('registration_success')}?email={email}")
 
 def place_order(request):

@@ -2,8 +2,9 @@ from django.urls import resolve, reverse
 from django.http import HttpRequest
 from django.test import TestCase
 from django.db.utils import IntegrityError
+from django.contrib.auth.models import User
 from main.views import home_page, CART_ID_SESSION_KEY
-from main.models import Category, Product, ShoppingCart, Order, Item
+from main.models import Category, Product, ShoppingCart, Order, Item, Token
 from unittest import skip
 from unittest.mock import patch
 from model_bakery import baker
@@ -330,6 +331,17 @@ class LoginViewTest(TestCase):
 
 class RegistrationViewTest(TestCase):
 
+    def setUp(self):
+        email = "test@email.com"
+        password = "testpassword"
+        self.test_user_info = {
+            'email': email,
+            'password': password
+        }
+
+    def get_test_user_info(self):
+        return self.test_user_info.values()
+
     def test_registration_view_uses_correct_template(self):
         response = self.client.get(reverse("register_view"))
 
@@ -347,6 +359,58 @@ class RegistrationViewTest(TestCase):
                 data={'email': 'test@email.com'}, follow=True)
 
         self.assertTemplateUsed(response, "registration_success.html")
+
+    def test_registration_create_new_user(self):
+        email, password = self.get_test_user_info()
+        user_count = len(User.objects.all())
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        new_user_count = len(User.objects.all())
+
+        self.assertGreater(new_user_count, user_count)
+
+    def test_new_user_is_not_activated(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+
+        self.assertFalse(user.is_active)
+
+    def test_create_user_also_creates_activation_token(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+    @patch("main.views.send_mail")
+    def test_send_activation_email(self, mock_send_mail):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+        self.assertTrue(mock_send_mail.called)
+        args, kwargs  = mock_send_mail.call_args
+        subject, message, from_email, recipient_list = kwargs.values()
+
+        self.assertIn(token.token, message)
+
+
+    def test_can_handle_user_activation(self):
+        email, password = self.get_test_user_info()
+
+        self.client.post(reverse("register"), data={'email': email, 'password': password})
+        user = User.objects.get(username=email)
+        token = Token.objects.get(email=user)
+
+        activation_link = reverse("login") + f"?token={token.token}"
+        self.client.get(activation_link)
+        user.refresh_from_db()
+
+        self.assertTrue(user.is_active)
 
 
 class CategoryModelTest(TestCase):
