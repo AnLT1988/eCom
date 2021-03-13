@@ -461,7 +461,7 @@ class RegistrationViewTest(TestCase):
 class CategoryModelTest(TestCase):
 
     def test_model_return_category(self):
-        response = Category.get_category()
+        response = Category.get_all_category()
         self.assertNotIsInstance(response, str)
         try:
             for res in response:

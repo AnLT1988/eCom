@@ -10,12 +10,20 @@ from django.db import models
 CART_ID_SESSION_KEY = 'cart_id'
 
 # Create your views here.
+def get_cart_from_session(session):
+    cart_id = session.get(CART_ID_SESSION_KEY, None)
+    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+
+    if created:
+        # If new cart is created, store in session
+        session[CART_ID_SESSION_KEY] = cart.id
+
+    return cart
 
 def home_page(request):
-    if not request.session.get(CART_ID_SESSION_KEY, None):
-        shopping_cart = ShoppingCart.objects.create()
-        request.session[CART_ID_SESSION_KEY] = shopping_cart.id
-    categories = Category.get_category()
+    cart = get_cart_from_session(request.session)
+
+    categories = Category.get_all_category()
     return render(request, "home.html", {'categories': categories})
 
 def display_category(request, category):
@@ -30,12 +38,7 @@ def display_product_detail(request, category, sku):
 
 
 def add_to_cart(request, category, sku):
-    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
-    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
-
-    if created:
-        # If new cart is created, store in session
-        request.session[CART_ID_SESSION_KEY] = cart.id
+    cart = get_cart_from_session(request.session)
 
     product = Product.objects.get(SKU=sku)
 
@@ -46,18 +49,12 @@ def add_to_cart(request, category, sku):
 
 
 def display_cart(request):
-    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
-    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
-
-    if created:
-        # If new cart is created, store in session
-        request.session[CART_ID_SESSION_KEY] = cart.id
+    cart = get_cart_from_session(request.session)
 
     return render(request, "cart_view.html", { "cart_items": cart })
 
 def update_cart(request):
-    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
-    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
+    cart = get_cart_from_session(request.session)
 
     update_data = request.POST
     sku = update_data.getlist('item')
@@ -75,12 +72,7 @@ def update_cart(request):
     return redirect("shopping_cart")
 
 def display_order_summary(request):
-    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
-    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
-
-    if created:
-        # If new cart is created, store in session
-        request.session[CART_ID_SESSION_KEY] = cart.id
+    cart = get_cart_from_session(request.session)
 
     return render(request, "order_summary.html", {'shopping_cart': cart})
 
@@ -138,12 +130,7 @@ def register_new_user(request):
     return redirect(f"{reverse('registration_success')}?email={email}")
 
 def place_order(request):
-    cart_id = request.session.get(CART_ID_SESSION_KEY, None)
-    cart, created = ShoppingCart.objects.get_or_create(id=cart_id)
-
-    if created:
-        # If new cart is created, store in session
-        request.session[CART_ID_SESSION_KEY] = cart.id
+    cart = get_cart_from_session(request.session)
 
     if len(cart.items.all()) == 0:
         return HttpResponseServerError()

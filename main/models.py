@@ -8,7 +8,7 @@ class Category(models.Model):
     name = models.TextField(blank=False, default='')
 
     @classmethod
-    def get_category(cls):
+    def get_all_category(cls):
         return cls.objects.all()
 
     def get_link(self):
