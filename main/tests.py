@@ -191,6 +191,16 @@ class OrderSummaryViewTest(TestCase):
 
     fixtures = ['category_data.json']
 
+    def setUp(self):
+        email = "test@email.com"
+        password = "testpassword"
+        self.test_user_info = {
+            'email': email,
+            'password': password
+        }
+        user = User.objects.create_user(email, password=password)
+        self.client.force_login(user)
+
     def test_order_summary_use_correct_template(self):
         response = self.client.get(reverse("order_summary"))
 
@@ -291,6 +301,16 @@ class OrderConfirmationViewTest(TestCase):
 
     fixtures = ['category_data.json']
 
+    def setUp(self):
+        email = "test@email.com"
+        password = "testpassword"
+        self.test_user_info = {
+            'email': email,
+            'password': password
+        }
+        user = User.objects.create_user(email, password=password)
+        self.client.force_login(user)
+
     def test_order_confirmation_test_use_correct_template(self):
         order = baker.make_recipe("main.tc_02_order")
         response = self.client.get(reverse("order_confirmation", kwargs={"order_id": order.id}))
@@ -308,6 +328,8 @@ class OrderConfirmationViewTest(TestCase):
 
     @patch("main.views.send_mail")
     def test_order_confirmation_send_email(self, mock_send_mail):
+        user = User.objects.first()
+        self.client.force_login(user)
         sku = '1234'
         new_quantity = 2
         self.client.post(f"/Food/{sku}/addToCart")

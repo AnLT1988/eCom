@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpResponseServerError
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from main.models import Category, Product, ShoppingCart, Order, Token
@@ -129,6 +130,7 @@ def register_new_user(request):
     )
     return redirect(f"{reverse('registration_success')}?email={email}")
 
+@login_required(login_url="/login/")
 def place_order(request):
     cart = get_cart_from_session(request.session)
 

@@ -116,7 +116,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         return item_rows
 
-    @unittest.skip("Skip for now")
+    # @unittest.skip("Skip for now")
     def test_shoper_can_place_an_order(self):
         # Selenie knows about out new eCommerce site
         # so she visits the site
